@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="email_template_caution_alerte" model="mail.template">
+            <field name="name">Alerte Caution</field>
+            <field name="model_id" ref="model_finance_caution"/>
+            <field name="subject">Alerte Gestion Caution : {{ object.name }}</field>
+            <field name="email_to">sammerkouche@marinfor-dz.com, s.aitmohamed@marinfor-dz.com, ymerkouhce@marinfor-dz.com</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Bonjour,
+                        <br/><br/>
+                        Une action est requise pour la caution <strong><t t-out="object.name"/></strong>.
+                        <br/><br/>
+                        <ul>
+                            <li t-if="object.is_late_depot" style="color: red;">
+                                <strong>URGENT :</strong> La caution n'a pas encore été déposée alors que la date limite approche.
+                            </li>
+                            <li t-if="object.is_near_expiry" style="color: orange;">
+                                <strong>ATTENTION :</strong> La caution arrive à échéance dans moins de 15 jours.
+                            </li>
+                            <li t-if="object.is_pending_restitution" style="color: blue;">
+                                <strong>RAPPEL :</strong> La main levée est effective, pensez à récupérer le document.
+                            </li>
+                        </ul>
+                        <br/>
+                        Merci de traiter ce dossier rapidement.
+                        <br/>
+                    </p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

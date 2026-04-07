@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_finance_caution_list" model="ir.ui.view">
+        <field name="name">finance.caution.list</field>
+        <field name="model">finance.caution</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_late_depot" 
+                  decoration-warning="is_near_expiry" 
+                  decoration-info="state == 'main_levee'" 
+                  decoration-muted="state == 'restituee'">
+                <field name="name"/>
+                <field name="type_caution"/>
+                <field name="is_partial_release" column_invisible="True"/>
+                <field name="banque"/>
+                <field name="beneficiaire"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="montant" sum="Total Cautions" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="frais_caution" sum="Total Frais" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="date_echeance"/>
+                <field name="is_late_depot" column_invisible="True"/>
+                <field name="is_near_expiry" column_invisible="True"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'active'" 
+                       decoration-warning="is_partial_release"
+                       decoration-info="state == 'main_levee'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_finance_caution_form" model="ir.ui.view">
+        <field name="name">finance.caution.form</field>
+        <field name="model">finance.caution</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_restituer" string="Confirmer Restitution" 
+                            type="object" class="oe_highlight" 
+                            invisible="state == 'restituee'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="active,restituee"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Référence Interne"/>
+                        <h1><field name="name" placeholder="ex: GBE/2026/001"/></h1>
+                    </div>
+                    <group>
+                        <group string="Configuration">
+                            <field name="type_caution" widget="radio" options="{'horizontal': true}"/>
+                            <field name="banque"/>
+                            <field name="beneficiaire"/>
+                        </group>
+                        <group string="Données Financières">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="montant" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            
+                            <!-- Bloc Main Levée Partielle -->
+                            <field name="is_partial_release" widget="boolean_toggle"/>
+                            <div class="o_td_label" invisible="not is_partial_release">
+                                <label for="partial_amount_released" string="Dont libéré"/>
+                            </div>
+                            <div invisible="not is_partial_release">
+                                <field name="partial_amount_released" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_inline"/>
+                                <span class="text-muted"> le </span>
+                                <field name="date_partial_release" class="oe_inline"/>
+                            </div>
+
+                            <field name="frais_caution" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="date_depot"/>
+                            <field name="date_echeance"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Suivi GBE" invisible="type_caution != 'gbe'">
+                            <group>
+                                <group>
+                                    <field name="date_notification"/>
+                                    <field name="date_limite_depot"/>
+                                </group>
+                                <group>
+                                    <field name="date_pv_reception"/>
+                                    <field name="duree_garantie"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Suivi Soumission" invisible="type_caution != 'soumission'">
+                            <group>
+                                <field name="date_soumission"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter>
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_finance_caution_kanban" model="ir.ui.view">
+        <field name="name">finance.caution.kanban</field>
+        <field name="model">finance.caution</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false">
+                <field name="state"/>
+                <field name="is_late_depot"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click shadow-sm border-left-4 #{record.is_late_depot.raw_value ? 'border-danger' : 'border-primary'}">
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                    <t t-if="record.is_partial_release.raw_value">
+                                        <span class="badge badge-warning float-right">Partiel</span>
+                                    </t>
+                                </strong>
+                                <div class="text-muted">
+                                    <field name="beneficiaire"/>
+                                </div>
+                                <div>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="montant" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div class="mt-2">
+                                    <span t-if="record.is_late_depot.raw_value" class="badge badge-danger">URGENT : DÉPÔT</span>
+                                    <field name="date_echeance" widget="remaining_days"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_finance_caution" model="ir.actions.act_window">
+        <field name="name">Tableau de bord des Cautions</field>
+        <field name="res_model">finance.caution</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre première caution bancaire !
+            </p>
+        </field>
+    </record>
+</odoo>

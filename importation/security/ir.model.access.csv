@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_import_tracking_user,import.tracking.user,model_import_tracking,group_import_user,1,1,1,1
+access_import_tracking_manager,import.tracking.manager,model_import_tracking,group_import_manager,1,1,1,1
+access_import_line_user,import.tracking.line.user,model_import_tracking_line,group_import_user,1,1,1,1
+access_import_line_manager,import.tracking.line.manager,model_import_tracking_line,group_import_manager,1,1,1,1
+access_import_dd_line_user,import.tracking.dd.line.user,model_import_tracking_dd_line,group_import_user,1,1,1,1
+access_import_dd_line_manager,import.tracking.dd.line.manager,model_import_tracking_dd_line,group_import_manager,1,1,1,1

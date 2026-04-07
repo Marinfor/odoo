@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_import_tracking_tree" model="ir.ui.view">
+        <field name="name">import.tracking.tree</field>
+        <field name="model">import.tracking</field>
+        <field name="arch" type="xml">
+            <list string="importation Marinfor">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="forwarder_id"/>
+                <field name="invoice_number"/>
+                <field name="date_d10"/>
+                <field name="total_amount_global" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-info="1"/>
+                <field name="total_tva_global" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_cost_price" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1" decoration-success="1"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state" widget="badge" decoration-info="state == 'shipped'" decoration-success="state == 'received'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_import_tracking_form" model="ir.ui.view">
+        <field name="name">import.tracking.form</field>
+        <field name="model">import.tracking</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" string="Confirmer" type="object" invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_done" string="Réceptionné" type="object" invisible="state != 'customs'" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,shipped,customs,received" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Référence Importation"/>
+                        <h1><field name="name" placeholder="ex: IMP/2026/0001"/></h1>
+                    </div>
+                    <group>
+                        <group string="Partenaires">
+                            <field name="partner_id"/>
+                            <field name="forwarder_id"/>
+                        </group>
+                        <group string="Facture d'Importation">
+                            <field name="invoice_number"/>
+                            <field name="invoice_date"/>
+                            <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </group>
+                    <group string="Rubrique D10 (Douane)">
+                        <group name="d10_base">
+                            <field name="date_d10"/>
+                        </group>
+                        <group name="d10_summary">
+                            <field name="amount_dd" widget="monetary" options="{'currency_field': 'currency_id'}" string="Droits de Douane (DD)"/>
+                            <field name="amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_prct" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_tcs" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <hr colspan="2"/>
+                            <field name="amount_total_d10" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator text-primary font-weight-bold" string="Total Taxes D10"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Calcul Segmenté DD (Tranches)">
+                        <field name="dd_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="amount_base" sum="Total Assiette Segmentée"/>
+                                <field name="rate_dd" widget="float" string="Taux (%)"/>
+                                <field name="amount_tax_line" sum="Total DD"/>
+                                <field name="currency_id" column_invisible="True"/>
+                            </list>
+                        </field>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Autres Frais">
+                            <field name="expense_line_ids">
+                                <list editable="bottom">
+                                    <field name="name" placeholder="ex: Transitaire, Magasinage..."/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="has_tva"/>
+                                    <field name="tva_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="total_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_expenses_ht" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="total_expenses_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                    <label for="total_expenses_ttc"/>
+                                </div>
+                                <field name="total_expenses_ttc" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                        </page>
+                    </notebook>
+                    
+                    <group string="Synthèse Financière et Coût de Revient" class="oe_subtotal_footer oe_right">
+                        <field name="total_amount_global" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="total_tva_global" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                            <label for="total_cost_price" string="Coût de Revient Total"/>
+                        </div>
+                        <field name="total_cost_price" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                    <div class="clearfix"/>
+                </sheet>
+                <chatter>
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_import_tracking" model="ir.actions.act_window">
+        <field name="name">importation Marinfor</field>
+        <field name="res_model">import.tracking</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+</odoo>

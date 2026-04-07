@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_finance_spot_form" model="ir.ui.view">
+        <field name="name">finance.spot.form</field>
+        <field name="model">finance.spot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_rembourser" string="Rembourser" type="object" class="oe_highlight" invisible="state == 'rembourse'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="en_cours,rembourse"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="N° Spot"/>
+                        <h1>
+                            <field name="name" placeholder="ex: SPOT/2026/001"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations Bancaires">
+                            <field name="banque"/>
+                            <field name="beneficiary_id"/>
+                        </group>
+                        <group string="Dates &amp; Montants">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="date_start"/>
+                            <field name="date_expiry"/>
+                            <field name="fees_amount" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1" decoration-danger="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter>
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_finance_spot_tree" model="ir.ui.view">
+        <field name="name">finance.spot.list</field>
+        <field name="model">finance.spot</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="is_near_expiry" decoration-danger="state == 'echue'">
+                <field name="name" string="Référence"/>
+                <field name="banque"/>
+                <field name="beneficiary_id"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="amount" sum="Total Montants" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="fees_amount" sum="Total Frais" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="date_expiry" string="Échéance"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'en_cours' and not is_near_expiry" 
+                       decoration-warning="is_near_expiry"
+                       decoration-danger="state == 'echue'"
+                       decoration-muted="state == 'rembourse'"/>
+                <field name="is_near_expiry" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_finance_spot_kanban" model="ir.ui.view">
+        <field name="name">finance.spot.kanban</field>
+        <field name="model">finance.spot</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false">
+                <field name="state"/>
+                <field name="is_near_expiry"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click shadow-sm border-left-4 #{record.is_near_expiry.raw_value ? 'border-warning' : 'border-primary'}">
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div class="text-muted">
+                                    <field name="beneficiary_id"/>
+                                </div>
+                                <div>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div class="mt-2">
+                                    <field name="date_expiry" widget="remaining_days"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_finance_spot" model="ir.actions.act_window">
+        <field name="name">Spots Bancaires</field>
+        <field name="res_model">finance.spot</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Déclarez votre premier spot bancaire !
+            </p>
+        </field>
+    </record>
+</odoo>

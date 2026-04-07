@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_importation_root"
+              name="importation Marinfor"
+              web_icon="importation,static/description/icon.png"
+              sequence="10"/>
+
+    <!-- Sous-menu Opérations -->
+    <menuitem id="menu_importation_operations"
+              name="Opérations"
+              parent="menu_importation_root"
+              sequence="10"/>
+
+    <!-- Menu Suivi -->
+    <menuitem id="menu_import_tracking"
+              name="Suivi des Importations"
+              parent="menu_importation_operations"
+              action="action_import_tracking"
+              sequence="10"/>
+</odoo>
