@@ -4,7 +4,7 @@
         <field name="name">import.tracking.tree</field>
         <field name="model">import.tracking</field>
         <field name="arch" type="xml">
-            <tree string="importation Marinfor">
+            <list string="importation Marinfor">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="forwarder_id"/>
@@ -15,7 +15,7 @@
                 <field name="total_cost_price" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1" decoration-success="1"/>
                 <field name="currency_id" column_invisible="True"/>
                 <field name="state" widget="badge" decoration-info="state == 'shipped'" decoration-success="state == 'received'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -105,9 +105,9 @@
                     <div class="clearfix"/>
                 </sheet>
                 <chatter>
-                    <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="activity_ids" widget="mail_activity"/>
-                    <field name="message_ids" widget="mail_thread"/>
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
                 </chatter>
             </form>
         </field>
