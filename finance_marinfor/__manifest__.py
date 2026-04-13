@@ -8,6 +8,7 @@
     'license': 'LGPL-3',
     'depends': [
         'base', 
+        'web',
         'mail',  # Indispensable pour la traçabilité et les notifications
     ],
     'data': [

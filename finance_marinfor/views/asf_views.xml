@@ -33,9 +33,9 @@
                         </group>
                     </sheet>
                     <chatter>
-                        <field name="message_follower_ids" widget="mail_followers"/>
-                        <field name="activity_ids" widget="mail_activity"/>
-                        <field name="message_ids" widget="mail_thread"/>
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
                     </chatter>
                 </form>
             </field>
@@ -98,7 +98,7 @@
         <record id="action_finance_asf" model="ir.actions.act_window">
             <field name="name">Avances Sur Factures</field>
             <field name="res_model">finance.asf</field>
-            <field name="view_mode">list,kanban,form</field>
+            <field name="view_mode">tree,kanban,form</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Créez votre première avance sur facture !
