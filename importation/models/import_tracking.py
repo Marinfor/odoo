@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+import re
 
 class ImportTracking(models.Model):
     _name = 'import.tracking'
@@ -12,7 +13,6 @@ class ImportTracking(models.Model):
             if not vals.get('name') or vals.get('name') == '/':
                 # Get partner name for the prefix
                 partner = self.env['res.partner'].browse(vals.get('partner_id'))
-                import re
                 partner_code = re.sub(r'[^A-Z0-9]', '', (partner.name or 'VAR').split()[0].upper())
                 year = fields.Date.today().year
                 # Get next sequence number
@@ -60,9 +60,9 @@ class ImportTracking(models.Model):
     total_expenses_ttc = fields.Monetary(string='Total Autres Frais', compute='_compute_expense_totals', store=True, currency_field='currency_id')
 
     # Synthèse Globale et Coût de Revient
-    total_amount_global = fields.Monetary(string='Montant Total TTC', compute='_compute_global_totals', store=True, currency_field='currency_id')
-    total_tva_global = fields.Monetary(string='Total TVA Global', compute='_compute_global_totals', store=True, currency_field='currency_id')
-    total_cost_price = fields.Monetary(string='Coût de Revient Total', compute='_compute_global_totals', store=True, currency_field='currency_id')
+    total_amount_global = fields.Monetary(string='Montant Total TTC', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
+    total_tva_global = fields.Monetary(string='Total TVA Global', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
+    total_cost_price = fields.Monetary(string='Coût de Revient Total', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
 
     @api.depends('amount_ttc', 'dd_line_ids.amount_tax_line')
     def _compute_d10_amounts(self):
