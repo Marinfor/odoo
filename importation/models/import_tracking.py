@@ -6,6 +6,22 @@ class ImportTracking(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin'] # Pour le chatter et les activités
     _order = 'name desc'
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('name') or vals.get('name') == '/':
+                # Get partner name for the prefix
+                partner = self.env['res.partner'].browse(vals.get('partner_id'))
+                import re
+                partner_code = re.sub(r'[^A-Z0-9]', '', (partner.name or 'VAR').split()[0].upper())
+                year = fields.Date.today().year
+                # Get next sequence number
+                seq = self.env['ir.sequence'].next_by_code('import.tracking') or '0000'
+                # Extract only the numeric part (last 4 digits)
+                num = ''.join(filter(str.isdigit, seq))[-4:]
+                vals['name'] = f"{partner_code}-{year}-{num}"
+        return super().create(vals_list)
+
     name = fields.Char(
         string='Référence Importation', 
         required=True, 
