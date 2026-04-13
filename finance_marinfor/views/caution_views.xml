@@ -4,7 +4,7 @@
         <field name="name">finance.caution.list</field>
         <field name="model">finance.caution</field>
         <field name="arch" type="xml">
-            <list decoration-danger="is_late_depot" 
+            <tree decoration-danger="is_late_depot" 
                   decoration-warning="is_near_expiry" 
                   decoration-info="state == 'main_levee'" 
                   decoration-muted="state == 'restituee'">
@@ -23,7 +23,7 @@
                        decoration-success="state == 'active'" 
                        decoration-warning="is_partial_release"
                        decoration-info="state == 'main_levee'"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -138,7 +138,7 @@
     <record id="action_finance_caution" model="ir.actions.act_window">
         <field name="name">Tableau de bord des Cautions</field>
         <field name="res_model">finance.caution</field>
-        <field name="view_mode">list,kanban,form</field>
+        <field name="view_mode">tree,kanban,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Créez votre première caution bancaire !

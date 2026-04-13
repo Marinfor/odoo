@@ -45,7 +45,7 @@
             <field name="name">finance.asf.tree</field>
             <field name="model">finance.asf</field>
             <field name="arch" type="xml">
-                <list decoration-warning="is_near_expiry" decoration-danger="state == 'echue'">
+                <tree decoration-warning="is_near_expiry" decoration-danger="state == 'echue'">
                     <field name="name"/>
                     <field name="banque"/>
                     <field name="invoice_number"/>
@@ -59,7 +59,7 @@
                            decoration-danger="state == 'echue'"
                            decoration-muted="state == 'rembourse'"/>
                     <field name="is_near_expiry" column_invisible="True"/>
-                </list>
+                </tree>
             </field>
         </record>
 
@@ -98,7 +98,7 @@
         <record id="action_finance_asf" model="ir.actions.act_window">
             <field name="name">Avances Sur Factures</field>
             <field name="res_model">finance.asf</field>
-            <field name="view_mode">list,kanban,form</field>
+            <field name="view_mode">tree,kanban,form</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Créez votre première avance sur facture !
