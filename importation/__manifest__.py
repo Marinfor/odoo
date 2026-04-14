@@ -22,6 +22,7 @@
         'security/security_groups.xml',
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
+        'data/currency_data.xml',
         'views/import_tracking_views.xml',
         'views/menus.xml',
     ],
