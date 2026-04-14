@@ -10,9 +10,9 @@
                 <field name="forwarder_id"/>
                 <field name="invoice_number"/>
                 <field name="date_d10"/>
-                <field name="total_amount_global" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-info="1"/>
+                <field name="total_amount_global" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-info="True"/>
                 <field name="total_tva_global" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="total_cost_price" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1" decoration-success="1"/>
+                <field name="total_cost_price" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="True" decoration-success="True"/>
                 <field name="currency_id" column_invisible="True"/>
                 <field name="state" widget="badge" decoration-info="state == 'shipped'" decoration-success="state == 'received'"/>
             </tree>
@@ -104,11 +104,11 @@
                     </group>
                     <div class="clearfix"/>
                 </sheet>
-                <chatter>
+                <div class="oe_chatter">
                     <field name="message_follower_ids"/>
                     <field name="activity_ids"/>
                     <field name="message_ids"/>
-                </chatter>
+                </div>
             </form>
         </field>
     </record>

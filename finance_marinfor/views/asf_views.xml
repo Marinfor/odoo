@@ -28,15 +28,15 @@
                                 <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                 <field name="date_delivery"/>
                                 <field name="date_expiry"/>
-                                <field name="fees_amount" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1" decoration-danger="1"/>
+                                <field name="fees_amount" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="True" decoration-danger="True"/>
                             </group>
                         </group>
                     </sheet>
-                    <chatter>
+                    <div class="oe_chatter">
                         <field name="message_follower_ids"/>
                         <field name="activity_ids"/>
                         <field name="message_ids"/>
-                    </chatter>
+                    </div>
                 </form>
             </field>
         </record>
