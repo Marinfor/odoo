@@ -50,28 +50,29 @@
                         <group name="d10_base">
                             <field name="date_d10"/>
                         </group>
-                        <group name="d10_summary">
-                            <field name="amount_dd" widget="monetary" options="{'currency_field': 'currency_id'}" string="Droits de Douane (DD)"/>
+                        <group name="d10_summary" class="oe_subtotal_footer">
+                            <field name="amount_dd" widget="monetary" options="{'currency_field': 'currency_id'}" string="Droits de Douane (DD)" decoration-bf="True"/>
                             <field name="amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="amount_prct" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="amount_tcs" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <hr colspan="2"/>
-                            <field name="amount_total_d10" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator text-primary font-weight-bold" string="Total Taxes D10"/>
+                            <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                <label for="amount_total_d10" string="Total Taxes D10"/>
+                            </div>
+                            <field name="amount_total_d10" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator text-primary font-weight-bold"/>
                         </group>
                     </group>
                     
-                    <group string="Calcul Segmenté DD (Tranches)">
-                        <field name="dd_line_ids" nolabel="1">
-                            <tree editable="bottom">
-                                <field name="amount_base" sum="Total Assiette Segmentée"/>
-                                <field name="rate_dd" widget="float" string="Taux (%)"/>
-                                <field name="amount_tax_line" sum="Total DD"/>
-                                <field name="currency_id" column_invisible="True"/>
-                            </tree>
-                        </field>
-                    </group>
-                    
                     <notebook>
+                        <page string="Détails Taxes Douane (D10)">
+                            <field name="dd_line_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="amount_base" string="Tranche d'Assiette" sum="Total Assiette Segmentée" decoration-info="True" decoration-bf="True"/>
+                                    <field name="rate_dd" string="Taux DD (%)" widget="float"/>
+                                    <field name="amount_tax_line" string="Montant DD" sum="Total DD" decoration-success="True" decoration-bf="True"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </tree>
+                            </field>
+                        </page>
                         <page string="Autres Frais">
                             <field name="expense_line_ids">
                                 <tree editable="bottom">
