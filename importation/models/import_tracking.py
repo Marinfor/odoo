@@ -13,13 +13,15 @@ class ImportTracking(models.Model):
             if not vals.get('name') or vals.get('name') == '/':
                 # Get partner name for the prefix
                 partner = self.env['res.partner'].browse(vals.get('partner_id'))
+                # Intelligent initials: 3 letters uppercase
                 partner_name = partner.name or 'VAR'
+                initials = re.sub(r'[^A-Z0-9]', '', partner_name.upper())[:3]
                 year = fields.Date.today().year
                 # Get next sequence number
                 seq = self.env['ir.sequence'].next_by_code('import.tracking') or '0000'
                 # Extract only the numeric part (last 4 digits)
                 num = ''.join(filter(str.isdigit, seq))[-4:]
-                vals['name'] = f"{partner_name} - {year} - {num}"
+                vals['name'] = f"{initials} - {year} - {num}"
         return super().create(vals_list)
 
     name = fields.Char(
