@@ -13,13 +13,13 @@ class ImportTracking(models.Model):
             if not vals.get('name') or vals.get('name') == '/':
                 # Get partner name for the prefix
                 partner = self.env['res.partner'].browse(vals.get('partner_id'))
-                partner_code = re.sub(r'[^A-Z0-9]', '', (partner.name or 'VAR').split()[0].upper())
+                partner_name = partner.name or 'VAR'
                 year = fields.Date.today().year
                 # Get next sequence number
                 seq = self.env['ir.sequence'].next_by_code('import.tracking') or '0000'
                 # Extract only the numeric part (last 4 digits)
                 num = ''.join(filter(str.isdigit, seq))[-4:]
-                vals['name'] = f"{partner_code}-{year}-{num}"
+                vals['name'] = f"{partner_name} - {year} - {num}"
         return super().create(vals_list)
 
     name = fields.Char(
@@ -27,7 +27,8 @@ class ImportTracking(models.Model):
         required=True, 
         copy=False, 
         tracking=True,
-        placeholder="Saisissez la référence unique du dossier..."
+        default='/',
+        placeholder="La référence sera générée automatiquement : Fournisseur - Année - N°"
     )
     
     # Informations Partenaires
@@ -40,7 +41,11 @@ class ImportTracking(models.Model):
     date_d10 = fields.Date(string='Date D10', tracking=True)
     
     # Finances
-    currency_id = fields.Many2one('res.currency', string='Devise', default=lambda self: self.env.company.currency_id)
+    currency_id = fields.Many2one(
+        'res.currency', 
+        string='Devise', 
+        default=lambda self: self.env['res.currency'].search([('name', '=', 'DZD')], limit=1) or self.env.company.currency_id
+    )
     amount_ttc = fields.Monetary(string='Assiette Douane', currency_field='currency_id', tracking=True)
     
     # Détails D10 (Taxes segmentées pour le DD)
