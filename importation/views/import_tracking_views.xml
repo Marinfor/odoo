@@ -78,7 +78,7 @@
                                 <tree editable="bottom">
                                     <field name="name" placeholder="ex: Transitaire, Magasinage..."/>
                                     <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                    <field name="has_tva"/>
+                                    <field name="tva_rate"/>
                                     <field name="tva_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
                                     <field name="total_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
                                     <field name="currency_id" column_invisible="True"/>

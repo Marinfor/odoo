@@ -122,15 +122,20 @@ class ImportTrackingLine(models.Model):
     tracking_id = fields.Many2one('import.tracking', string='Importation', ondelete='cascade')
     name = fields.Char(string='Description des frais', required=True)
     amount = fields.Monetary(string='Montant Hors Taxe', currency_field='currency_id')
-    has_tva = fields.Boolean(string='Avec TVA', default=False)
-    tva_amount = fields.Monetary(string='Montant TVA (19%)', compute='_compute_line_totals', store=True, currency_field='currency_id')
+    tva_rate = fields.Selection([
+        ('0', '0%'),
+        ('9', '9%'),
+        ('19', '19%')
+    ], string='Taux TVA', default='19')
+    tva_amount = fields.Monetary(string='Montant TVA', compute='_compute_line_totals', store=True, currency_field='currency_id')
     total_amount = fields.Monetary(string='Montant TTC', compute='_compute_line_totals', store=True, currency_field='currency_id')
     currency_id = fields.Many2one(related='tracking_id.currency_id')
     
-    @api.depends('amount', 'has_tva')
+    @api.depends('amount', 'tva_rate')
     def _compute_line_totals(self):
         for line in self:
-            line.tva_amount = line.amount * 0.19 if line.has_tva else 0.0
+            rate = float(line.tva_rate or 0.0) / 100.0
+            line.tva_amount = line.amount * rate
             line.total_amount = line.amount + line.tva_amount
 
 class ImportTrackingDDLine(models.Model):
