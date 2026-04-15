@@ -35,38 +35,49 @@
                         <h1><field name="name" placeholder="Fournisseur - Année - N°"/></h1>
                     </div>
                     <group>
-                        <group string="Partenaires">
-                            <field name="partner_id"/>
-                            <field name="forwarder_id"/>
-                        </group>
-                        <group string="Facture d'Importation">
+                        <group string="Partenaires &amp; Facture" name="group_general">
+                            <field name="partner_id" options="{'no_create': True}"/>
+                            <field name="forwarder_id" options="{'no_create': True}"/>
                             <field name="invoice_number"/>
                             <field name="invoice_date"/>
+                        </group>
+                        <group string="Configuration Financière" name="group_finance">
                             <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}" string="Assiette Douane (Somme Produits)" invisible="not product_line_ids"/>
-                        </group>
-                    </group>
-                    <group string="Rubrique D10 (Douane)">
-                        <group name="d10_base">
                             <field name="date_d10"/>
-                        </group>
-                        <group name="d10_summary" class="oe_subtotal_footer">
-                            <field name="amount_dd" widget="monetary" options="{'currency_field': 'currency_id'}" string="Droits de Douane (DD)" decoration-bf="True"/>
-                            <field name="amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="amount_prct" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="amount_tcs" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                                <label for="amount_total_d10" string="Total Taxes D10"/>
-                            </div>
-                            <field name="amount_total_d10" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator text-primary font-weight-bold"/>
+                            <field name="amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}" string="Assiette Douane Totale" class="oe_read_only text-info font-weight-bold"/>
                         </group>
                     </group>
+
+                    <div class="row mt-4">
+                        <div class="col-6">
+                            <group string="Récapitulatif D10 (Taxes Douane)" class="oe_subtotal_footer">
+                                <field name="amount_dd" widget="monetary" options="{'currency_field': 'currency_id'}" string="Droits de Douane (DD)" decoration-bf="True"/>
+                                <field name="amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="amount_prct" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="amount_tcs" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                    <label for="amount_total_d10" string="TOTAL TAXES D10"/>
+                                </div>
+                                <field name="amount_total_d10" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator text-primary font-weight-bold"/>
+                            </group>
+                        </div>
+                        <div class="col-6">
+                            <group string="Synthèse &amp; Coût de Revient" class="oe_subtotal_footer">
+                                <field name="total_amount_global" widget="monetary" options="{'currency_field': 'currency_id'}" string="Montant Global TTC"/>
+                                <field name="total_tva_global" widget="monetary" options="{'currency_field': 'currency_id'}" string="TTC à déduire (TVA)"/>
+                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                    <label for="total_cost_price" string="COÛT DE REVIENT TOTAL"/>
+                                </div>
+                                <field name="total_cost_price" nolabel="1" class="oe_subtotal_footer_separator text-success font-weight-bold" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                        </div>
+                    </div>
                     
                     <notebook>
-                        <page string="Détails Produits (D10)">
+                        <page string="Détails Produits (D10)" name="products">
                             <field name="product_line_ids" nolabel="1">
                                 <tree editable="bottom">
-                                    <field name="product_id"/>
+                                    <field name="product_id" options="{'no_create': True}"/>
                                     <field name="amount_base" string="Assiette" sum="Total Assiette" decoration-info="True" decoration-bf="True"/>
                                     <field name="rate_dd" string="Taux DD (%)" widget="float"/>
                                     <field name="amount_dd" string="Montant DD" sum="Total DD" decoration-success="True"/>
@@ -77,10 +88,10 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Autres Frais">
-                            <field name="expense_line_ids">
+                        <page string="Autres Frais (Transport, etc.)" name="other_expenses">
+                            <field name="expense_line_ids" nolabel="1">
                                 <tree editable="bottom">
-                                    <field name="name" placeholder="ex: Transitaire, Magasinage..."/>
+                                    <field name="name" placeholder="ex: Frais Transitaire, Magasinage..."/>
                                     <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                     <field name="tva_rate"/>
                                     <field name="tva_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
@@ -92,7 +103,7 @@
                                 <field name="total_expenses_ht" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                 <field name="total_expenses_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                 <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                                    <label for="total_expenses_ttc"/>
+                                    <label for="total_expenses_ttc" string="Total Autres Frais"/>
                                 </div>
                                 <field name="total_expenses_ttc" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             </group>
