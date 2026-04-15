@@ -55,8 +55,8 @@
                                 <field name="amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                 <field name="amount_prct" widget="monetary" options="{'currency_field': 'currency_id'}" string="PRCT"/>
                                 <field name="amount_tcs" widget="monetary" options="{'currency_field': 'currency_id'}" string="TCS"/>
-                                <field name="other_d10_details" string="Nature Autres Frais" placeholder="ex: RPS" invisible="other_d10_frais == 0"/>
-                                <field name="other_d10_frais" widget="monetary" options="{'currency_field': 'currency_id'}" string="Montant Autres Frais"/>
+                                <field name="other_d10_details" string="Nature Autres Taxes" placeholder="ex: RPS" invisible="other_d10_frais == 0"/>
+                                <field name="other_d10_frais" widget="monetary" options="{'currency_field': 'currency_id'}" string="Montant Autres Taxes"/>
                                 <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                                     <label for="amount_total_d10" string="TOTAL TAXES D10"/>
                                 </div>
