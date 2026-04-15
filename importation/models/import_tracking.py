@@ -57,6 +57,8 @@ class ImportTracking(models.Model):
     amount_tva = fields.Monetary(string='TVA (19%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_prct = fields.Monetary(string='PRCT (2%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_tcs = fields.Monetary(string='TCS (3%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
+    other_d10_frais = fields.Monetary(string='Autres Frais D10', currency_field='currency_id', tracking=True, help="Ex: RPS, etc.")
+    other_d10_details = fields.Char(string='Détails Frais D10', placeholder="ex: RPS à 4000 DA")
     amount_total_d10 = fields.Monetary(string='Total Taxes D10', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     
     # Autres Frais
@@ -78,7 +80,7 @@ class ImportTracking(models.Model):
             record.amount_tcs = sum(record.product_line_ids.mapped('amount_tcs'))
             record.amount_tva = sum(record.product_line_ids.mapped('amount_tva'))
             record.amount_prct = sum(record.product_line_ids.mapped('amount_prct'))
-            record.amount_total_d10 = sum(record.product_line_ids.mapped('amount_total_line'))
+            record.amount_total_d10 = sum(record.product_line_ids.mapped('amount_total_line')) + record.other_d10_frais
 
     @api.depends('expense_line_ids.amount', 'expense_line_ids.tva_amount')
     def _compute_expense_totals(self):
