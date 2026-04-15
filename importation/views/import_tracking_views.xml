@@ -43,7 +43,7 @@
                             <field name="invoice_number"/>
                             <field name="invoice_date"/>
                             <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}" string="Assiette Douane (Somme Produits)" invisible="not product_line_ids"/>
                         </group>
                     </group>
                     <group string="Rubrique D10 (Douane)">
@@ -63,12 +63,16 @@
                     </group>
                     
                     <notebook>
-                        <page string="Détails Taxes Douane (D10)">
-                            <field name="dd_line_ids" nolabel="1">
+                        <page string="Détails Produits (D10)">
+                            <field name="product_line_ids" nolabel="1">
                                 <tree editable="bottom">
-                                    <field name="amount_base" string="Tranche d'Assiette" sum="Total Assiette Segmentée" decoration-info="True" decoration-bf="True"/>
+                                    <field name="product_id"/>
+                                    <field name="amount_base" string="Assiette" sum="Total Assiette" decoration-info="True" decoration-bf="True"/>
                                     <field name="rate_dd" string="Taux DD (%)" widget="float"/>
-                                    <field name="amount_tax_line" string="Montant DD" sum="Total DD" decoration-success="True" decoration-bf="True"/>
+                                    <field name="amount_dd" string="Montant DD" sum="Total DD" decoration-success="True"/>
+                                    <field name="amount_tcs" string="TCS (3%)" sum="Total TCS"/>
+                                    <field name="amount_tva" string="TVA (19%)" sum="Total TVA"/>
+                                    <field name="amount_prct" string="PRCT (2%)" sum="Total PRCT"/>
                                     <field name="currency_id" column_invisible="True"/>
                                 </tree>
                             </field>

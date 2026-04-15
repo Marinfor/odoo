@@ -48,12 +48,11 @@ class ImportTracking(models.Model):
         string='Devise', 
         default=lambda self: self.env['res.currency'].search([('name', '=', 'DZD')], limit=1) or self.env.company.currency_id
     )
-    amount_ttc = fields.Monetary(string='Assiette Douane', currency_field='currency_id', tracking=True)
+    # Détails des Produits (D10)
+    product_line_ids = fields.One2many('import.tracking.product.line', 'tracking_id', string='Produits Importés')
     
-    # Détails D10 (Taxes segmentées pour le DD)
-    dd_line_ids = fields.One2many('import.tracking.dd.line', 'tracking_id', string='Segmentation DD')
-    
-    # Totaux D10 (Calculés)
+    # Totaux D10 (Calculés à partir des lignes de produits)
+    amount_ttc = fields.Monetary(string='Assiette Douane Totale', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_dd = fields.Monetary(string='Montant DD Total', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_tva = fields.Monetary(string='TVA (19%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_prct = fields.Monetary(string='PRCT (2%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
@@ -71,17 +70,15 @@ class ImportTracking(models.Model):
     total_tva_global = fields.Monetary(string='Total TVA Global', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
     total_cost_price = fields.Monetary(string='Coût de Revient Total', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
 
-    @api.depends('amount_ttc', 'dd_line_ids.amount_tax_line')
+    @api.depends('product_line_ids.amount_base', 'product_line_ids.amount_dd', 'product_line_ids.amount_tva', 'product_line_ids.amount_tcs', 'product_line_ids.amount_prct')
     def _compute_d10_amounts(self):
         for record in self:
-            # Le DD est maintenant la somme des tranches segmentées
-            record.amount_dd = sum(record.dd_line_ids.mapped('amount_tax_line'))
-            
-            # Les autres taxes restent basées sur l'Assiette Douane totale (TTC)
-            record.amount_tva = record.amount_ttc * 0.19
-            record.amount_prct = record.amount_ttc * 0.02
-            record.amount_tcs = record.amount_ttc * 0.03
-            record.amount_total_d10 = record.amount_dd + record.amount_tva + record.amount_prct + record.amount_tcs
+            record.amount_ttc = sum(record.product_line_ids.mapped('amount_base'))
+            record.amount_dd = sum(record.product_line_ids.mapped('amount_dd'))
+            record.amount_tcs = sum(record.product_line_ids.mapped('amount_tcs'))
+            record.amount_tva = sum(record.product_line_ids.mapped('amount_tva'))
+            record.amount_prct = sum(record.product_line_ids.mapped('amount_prct'))
+            record.amount_total_d10 = sum(record.product_line_ids.mapped('amount_total_line'))
 
     @api.depends('expense_line_ids.amount', 'expense_line_ids.tva_amount')
     def _compute_expense_totals(self):
@@ -138,17 +135,34 @@ class ImportTrackingLine(models.Model):
             line.tva_amount = line.amount * rate
             line.total_amount = line.amount + line.tva_amount
 
-class ImportTrackingDDLine(models.Model):
-    _name = 'import.tracking.dd.line'
-    _description = 'Tranche de Droits de Douane'
+class ImportTrackingProductLine(models.Model):
+    _name = 'import.tracking.product.line'
+    _description = 'Ligne de produit importation'
     
     tracking_id = fields.Many2one('import.tracking', ondelete='cascade')
-    amount_base = fields.Monetary(string='Tranche d\'Assiette', currency_field='currency_id')
-    rate_dd = fields.Float(string='Taux DD (%)')
-    amount_tax_line = fields.Monetary(string='Montant DD', compute='_compute_tax_line', store=True, currency_field='currency_id')
+    product_id = fields.Many2one('product.product', string='Produit', required=True)
+    amount_base = fields.Monetary(string='Assiette', required=True, currency_field='currency_id')
+    rate_dd = fields.Float(string='Taux DD (%)', default=30.0)
+    
+    # Taxes calculées par ligne
+    amount_dd = fields.Monetary(string='Montant DD', compute='_compute_line_taxes', store=True, currency_field='currency_id')
+    amount_tcs = fields.Monetary(string='TCS (3%)', compute='_compute_line_taxes', store=True, currency_field='currency_id')
+    amount_tva = fields.Monetary(string='TVA (19%)', compute='_compute_line_taxes', store=True, currency_field='currency_id')
+    amount_prct = fields.Monetary(string='PRCT (2%)', compute='_compute_line_taxes', store=True, currency_field='currency_id')
+    amount_total_line = fields.Monetary(string='Total Taxes', compute='_compute_line_taxes', store=True, currency_field='currency_id')
+    
     currency_id = fields.Many2one(related='tracking_id.currency_id')
     
     @api.depends('amount_base', 'rate_dd')
-    def _compute_tax_line(self):
+    def _compute_line_taxes(self):
         for line in self:
-            line.amount_tax_line = (line.amount_base * line.rate_dd) / 100.0
+            # 1. DD
+            line.amount_dd = (line.amount_base * line.rate_dd) / 100.0
+            # 2. TCS (3% de l'assiette)
+            line.amount_tcs = line.amount_base * 0.03
+            # 3. TVA (19% de Assiette + DD + TCS)
+            line.amount_tva = (line.amount_base + line.amount_dd + line.amount_tcs) * 0.19
+            # 4. PRCT (2% de Assiette + TVA)
+            line.amount_prct = (line.amount_base + line.amount_tva) * 0.02
+            # 5. Total des taxes de la ligne
+            line.amount_total_line = line.amount_dd + line.amount_tcs + line.amount_tva + line.amount_prct
