@@ -140,7 +140,8 @@ class ImportTrackingProductLine(models.Model):
     _description = 'Ligne de produit importation'
     
     tracking_id = fields.Many2one('import.tracking', ondelete='cascade')
-    product_id = fields.Many2one('product.product', string='Produit', required=True)
+    name = fields.Char(string='Description', help="Nom ou description du produit")
+    product_id = fields.Many2one('product.product', string='Produit catalogue')
     amount_base = fields.Monetary(string='Assiette', required=True, currency_field='currency_id')
     rate_dd = fields.Float(string='Taux DD (%)', default=30.0)
     
@@ -163,6 +164,6 @@ class ImportTrackingProductLine(models.Model):
             # 3. TVA (19% de Assiette + DD + TCS)
             line.amount_tva = (line.amount_base + line.amount_dd + line.amount_tcs) * 0.19
             # 4. PRCT (2% de Assiette + TVA)
-            line.amount_prct = (line.amount_base + line.amount_tva) * 0.02
+            line.amount_prct = (line.amount_base + line.amount_dd + line.amount_tcs + line.amount_tva) * 0.02
             # 5. Total des taxes de la ligne
             line.amount_total_line = line.amount_dd + line.amount_tcs + line.amount_tva + line.amount_prct

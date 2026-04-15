@@ -77,7 +77,8 @@
                         <page string="Détails Produits (D10)" name="products">
                             <field name="product_line_ids" nolabel="1">
                                 <tree editable="bottom">
-                                    <field name="product_id" options="{'no_create': True}"/>
+                                    <field name="name" placeholder="Description du produit" required="1"/>
+                                    <field name="product_id" options="{'no_create': True}" optional="hide"/>
                                     <field name="amount_base" string="Assiette" sum="Total Assiette" decoration-info="True" decoration-bf="True"/>
                                     <field name="rate_dd" string="Taux DD (%)" widget="float"/>
                                     <field name="amount_dd" string="Montant DD" sum="Total DD" decoration-success="True"/>
