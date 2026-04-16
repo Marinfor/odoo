@@ -37,10 +37,9 @@
                     </div>
                     <group>
                         <group string="Références Dossier" name="group_refs">
-                            <field name="folder_number" placeholder="N° de Dossier"/>
                             <field name="contract_number" placeholder="N° de Contrat"/>
                         </group>
-                        <group string="Section Douane (D10)" name="group_d10">
+                        <group string="Douane Algérienne" name="group_d10">
                             <field name="d10_number"/>
                             <field name="date_d10"/>
                             <field name="d10_nature"/>
@@ -93,7 +92,7 @@
                                 <field name="other_d10_details" string="Nature Autres Taxes" placeholder="ex: RPS" invisible="other_d10_frais == 0"/>
                                 <field name="other_d10_frais" widget="monetary" options="{'currency_field': 'currency_id'}" string="Montant Autres Taxes"/>
                                 <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                                    <label for="amount_total_d10" string="DROITS ET TAXES"/>
+                                    <label for="amount_total_d10" string="MONTANT QUITTANCE"/>
                                 </div>
                                 <field name="amount_total_d10" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator text-primary font-weight-bold"/>
                             </group>

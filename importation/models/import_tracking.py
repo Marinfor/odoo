@@ -34,9 +34,7 @@ class ImportTracking(models.Model):
     )
 
     # Références et Dossiers (Options)
-    folder_number = fields.Char(string='N° de Dossier', tracking=True)
     contract_number = fields.Char(string='N° de Contrat', tracking=True)
-    po_number = fields.Char(string='PO (Purchase Order)', tracking=True)
     
     # Informations Partenaires
     partner_id = fields.Many2one('res.partner', string='Fournisseur', required=True, tracking=True)
@@ -89,7 +87,7 @@ class ImportTracking(models.Model):
     amount_prct = fields.Monetary(string='PRCT (2%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_tcs = fields.Monetary(string='TCS (3%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     other_d10_details = fields.Char(string='Détails Taxes D10', placeholder="ex: RPS à 4000 DA")
-    amount_total_d10 = fields.Monetary(string='Droits et Taxes', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
+    amount_total_d10 = fields.Monetary(string='Montant Quittance', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     
     # Section Transitaire (Frais dédiés)
     forwarder_id = fields.Many2one('res.partner', string='Transitaire', tracking=True)
