@@ -139,12 +139,12 @@
                                 </tree>
                             </field>
                             <group class="oe_subtotal_footer oe_right">
-                                <field name="total_expenses_ht" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                <field name="total_expenses_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="table_expenses_ht" string="Total Hors Taxe" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="table_expenses_tva" string="Total TVA" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                 <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                                    <label for="total_expenses_ttc" string="Total Autres Frais"/>
+                                    <label for="table_expenses_ttc" string="Total Lignes Frais"/>
                                 </div>
-                                <field name="total_expenses_ttc" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="table_expenses_ttc" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             </group>
                         </page>
                     </notebook>

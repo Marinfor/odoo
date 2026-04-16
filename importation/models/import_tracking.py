@@ -103,8 +103,15 @@ class ImportTracking(models.Model):
 
     # Autres Frais (Tableau)
     expense_line_ids = fields.One2many('import.tracking.line', 'tracking_id', string='Autres Frais')
-    total_expenses_ht = fields.Monetary(string='Total Hors Taxe', compute='_compute_expense_totals', store=True, currency_field='currency_id')
-    total_expenses_tva = fields.Monetary(string='Total TVA', compute='_compute_expense_totals', store=True, currency_field='currency_id')
+    
+    # Totaux pour l'onglet "Autres Frais" uniquement (Tableau)
+    table_expenses_ht = fields.Monetary(string='Total Hors Taxe (Tableau)', compute='_compute_table_expense_totals', currency_field='currency_id')
+    table_expenses_tva = fields.Monetary(string='Total TVA (Tableau)', compute='_compute_table_expense_totals', currency_field='currency_id')
+    table_expenses_ttc = fields.Monetary(string='Total (Tableau)', compute='_compute_table_expense_totals', currency_field='currency_id')
+
+    # Totaux globaux des autres frais (Transit + Tableau)
+    total_expenses_ht = fields.Monetary(string='Total Hors Taxe Globale', compute='_compute_expense_totals', store=True, currency_field='currency_id')
+    total_expenses_tva = fields.Monetary(string='Total TVA Globale', compute='_compute_expense_totals', store=True, currency_field='currency_id')
     total_expenses_ttc = fields.Monetary(string='Total Autres Frais', compute='_compute_expense_totals', store=True, currency_field='currency_id')
 
     # Synthèse Globale et Coût de Revient
@@ -148,12 +155,19 @@ class ImportTracking(models.Model):
         for record in self:
             record.transit_amount_ttc = record.transit_amount_ht + record.transit_amount_tva
 
-    @api.depends('expense_line_ids.amount', 'expense_line_ids.tva_amount', 'transit_amount_ht', 'transit_amount_tva')
+    @api.depends('expense_line_ids.amount', 'expense_line_ids.tva_amount')
+    def _compute_table_expense_totals(self):
+        for record in self:
+            record.table_expenses_ht = sum(record.expense_line_ids.mapped('amount'))
+            record.table_expenses_tva = sum(record.expense_line_ids.mapped('tva_amount'))
+            record.table_expenses_ttc = record.table_expenses_ht + record.table_expenses_tva
+
+    @api.depends('table_expenses_ht', 'table_expenses_tva', 'transit_amount_ht', 'transit_amount_tva')
     def _compute_expense_totals(self):
         for record in self:
-            # On inclut le transit dans les totaux de frais
-            record.total_expenses_ht = sum(record.expense_line_ids.mapped('amount')) + record.transit_amount_ht
-            record.total_expenses_tva = sum(record.expense_line_ids.mapped('tva_amount')) + record.transit_amount_tva
+            # On inclut le transit dans les totaux globaux pour le coût de revient
+            record.total_expenses_ht = record.table_expenses_ht + record.transit_amount_ht
+            record.total_expenses_tva = record.table_expenses_tva + record.transit_amount_tva
             record.total_expenses_ttc = record.total_expenses_ht + record.total_expenses_tva
 
     @api.depends('amount_ttc', 'amount_total_d10', 'total_expenses_ttc', 'amount_tva', 'total_expenses_tva')
