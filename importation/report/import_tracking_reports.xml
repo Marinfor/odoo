@@ -17,7 +17,7 @@
     <record id="action_report_fiche_importation" model="ir.actions.report">
         <field name="name">Fiche Importation</field>
         <field name="model">import.tracking</field>
-        <field name="report_type">qweb-pdf</field>
+        <field name="report_type">qweb-html</field>
         <field name="report_name">importation.report_fiche_importation_template</field>
         <field name="report_file">importation.report_fiche_importation_template</field>
         <field name="print_report_name">'Fiche Importation - %s' % (object.name)</field>
@@ -35,10 +35,32 @@
                         <style>
                             @page {
                                 size: A4;
+                                margin: 10mm;
+                            }
+                            body {
+                                background-color: #f0f0f0;
                                 margin: 0;
+                                padding: 0;
+                            }
+                            .page {
+                                background: white;
+                                width: 210mm;
+                                min-height: 297mm;
+                                padding: 10mm;
+                                margin: 20px auto;
+                                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                                box-sizing: border-box;
+                            }
+                            @media print {
+                                body { background: none; }
+                                .page { 
+                                    margin: 0; 
+                                    box-shadow: none;
+                                    width: 100%;
+                                }
                             }
                             .report-container {
-                                padding: 15mm;
+                                padding: 5mm;
                                 background: white;
                             }
                             .doc-title {
