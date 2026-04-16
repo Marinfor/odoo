@@ -50,8 +50,13 @@ class ImportTracking(models.Model):
     d10_number = fields.Char(string='N° D10', tracking=True)
     d10_nature = fields.Char(string='Nature du D10', tracking=True)
     date_d10 = fields.Date(string='Date D10', tracking=True)
-    
-    # Gestion des Devises et Conversion
+    receipt_number = fields.Char(string='N° Quittance', tracking=True)
+
+    # Taxes Douane spécifiques pour le rapport
+    rps_frais = fields.Monetary(string='RPS', currency_field='currency_id', tracking=True)
+    amd_frais = fields.Monetary(string='AMD', currency_field='currency_id', tracking=True)
+    tel_frais = fields.Monetary(string='TEL', currency_field='currency_id', tracking=True)
+    other_d10_frais = fields.Monetary(string='Autres Taxes D10', currency_field='currency_id', tracking=True, help="Ex: RPS, etc.")
     initial_amount = fields.Float(string='Montant Initial', tracking=True)
     initial_currency_id = fields.Many2one(
         'res.currency', 
@@ -61,7 +66,7 @@ class ImportTracking(models.Model):
     )
     exchange_rate = fields.Float(string='Taux de Change', tracking=True, digits=(12, 4), required=True, default=1.0)
     amount_dzd_working = fields.Monetary(
-        string='Montant de Travail (DZD)', 
+        string='Montant (DZD)', 
         compute='_compute_amount_dzd_working', 
         store=True,
         currency_field='currency_id'
@@ -137,7 +142,8 @@ class ImportTracking(models.Model):
             record.amount_tcs = sum(record.product_line_ids.mapped('amount_tcs'))
             record.amount_tva = sum(record.product_line_ids.mapped('amount_tva'))
             record.amount_prct = sum(record.product_line_ids.mapped('amount_prct'))
-            record.amount_total_d10 = sum(record.product_line_ids.mapped('amount_total_line')) + record.other_d10_frais
+            taxes_base = sum(record.product_line_ids.mapped('amount_total_line'))
+            record.amount_total_d10 = taxes_base + record.other_d10_frais + record.rps_frais + record.amd_frais + record.tel_frais
 
     @api.depends('transit_amount_ht', 'transit_tva_rate')
     def _compute_transit_amounts(self):

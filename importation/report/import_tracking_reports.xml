@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_fiche_importation" model="ir.actions.report">
+        <field name="name">Fiche Importation</field>
+        <field name="model">import.tracking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">importation.report_fiche_importation_template</field>
+        <field name="report_file">importation.report_fiche_importation_template</field>
+        <field name="print_report_name">'Fiche Importation - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_import_tracking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_fiche_importation_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .import-box {
+                                border: 1px solid black;
+                                padding: 10px;
+                                margin-bottom: 20px;
+                            }
+                            .import-title {
+                                text-align: center;
+                                font-weight: bold;
+                                font-size: 24px;
+                                margin-bottom: 30px;
+                                text-decoration: underline;
+                            }
+                            .section-title {
+                                font-weight: bold;
+                                border-bottom: 1px solid #ddd;
+                                margin-bottom: 10px;
+                                padding-bottom: 5px;
+                                font-size: 18px;
+                            }
+                            .table-details {
+                                width: 100%;
+                                border-collapse: collapse;
+                            }
+                            .table-details th, .table-details td {
+                                border: 1px solid #ccc;
+                                padding: 5px;
+                                text-align: left;
+                            }
+                            .table-details th {
+                                background-color: #f2f2f2;
+                            }
+                            .total-row {
+                                font-weight: bold;
+                                background-color: #eee;
+                            }
+                        </style>
+
+                        <!-- En-tête -->
+                        <div class="row">
+                            <div class="col-6">
+                                <div><strong>N° DOSSIER :</strong> <span t-field="doc.folder_number"/></div>
+                                <div><strong>CONTRAT :</strong> <span t-field="doc.contract_number"/></div>
+                            </div>
+                        </div>
+
+                        <div class="import-title">FICHE IMPORTATION</div>
+
+                        <!-- Bloc Fournisseur -->
+                        <div class="import-box">
+                            <div class="section-title">BLOC FOURNISSEUR</div>
+                            <div class="row">
+                                <div class="col-7">
+                                    <div><strong>Fournisseur :</strong> <span t-field="doc.partner_id.name"/></div>
+                                    <div><strong>Adresse :</strong> 
+                                        <span t-field="doc.partner_id.street"/> 
+                                        <span t-field="doc.partner_id.city"/>
+                                        <span t-field="doc.partner_id.country_id.name"/>
+                                    </div>
+                                    <div><strong>N° Facture :</strong> <span t-field="doc.invoice_number"/></div>
+                                </div>
+                                <div class="col-5">
+                                    <div><strong>Montant Devise :</strong> 
+                                        <span t-field="doc.initial_amount"/> 
+                                        <span t-field="doc.initial_currency_id.symbol"/>
+                                    </div>
+                                    <div><strong>Total Converti :</strong> 
+                                        <span t-field="doc.amount_dzd_working" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </div>
+                                    <div><strong>Taux de change :</strong> <span t-field="doc.exchange_rate"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloc Douane Algérienne -->
+                        <div class="import-box">
+                            <div class="section-title">DOUANE ALGÉRIENNE</div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div><strong>N° D10 :</strong> <span t-field="doc.d10_number"/></div>
+                                    <div><strong>Date D10 :</strong> <span t-field="doc.date_d10"/></div>
+                                </div>
+                                <div class="col-6">
+                                    <div><strong>Nature D10 :</strong> <span t-field="doc.d10_nature"/></div>
+                                    <div><strong>N° Quittance :</strong> <span t-field="doc.receipt_number"/></div>
+                                </div>
+                            </div>
+                            
+                            <strong>Détails Droits et Taxes :</strong>
+                            <table class="table-details mt-2">
+                                <thead>
+                                    <tr>
+                                        <th>Type de Taxe / Frais</th>
+                                        <th class="text-right">Montant (DZD)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Droits de Douane (DD)</td>
+                                        <td class="text-right"><span t-field="doc.amount_dd"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>TVA (19%)</td>
+                                        <td class="text-right"><span t-field="doc.amount_tva"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>PRCT (2%)</td>
+                                        <td class="text-right"><span t-field="doc.amount_prct"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>TCS (3%)</td>
+                                        <td class="text-right"><span t-field="doc.amount_tcs"/></td>
+                                    </tr>
+                                    <tr t-if="doc.rps_frais > 0">
+                                        <td>RPS</td>
+                                        <td class="text-right"><span t-field="doc.rps_frais"/></td>
+                                    </tr>
+                                    <tr t-if="doc.amd_frais > 0">
+                                        <td>AMD</td>
+                                        <td class="text-right"><span t-field="doc.amd_frais"/></td>
+                                    </tr>
+                                    <tr t-if="doc.tel_frais > 0">
+                                        <td>TEL</td>
+                                        <td class="text-right"><span t-field="doc.tel_frais"/></td>
+                                    </tr>
+                                    <tr t-if="doc.other_d10_frais > 0">
+                                        <td>Autres Taxes Douane (<span t-field="doc.other_d10_details"/>)</td>
+                                        <td class="text-right"><span t-field="doc.other_d10_frais"/></td>
+                                    </tr>
+                                    <tr class="total-row">
+                                        <td>MONTANT QUITTANCE TOTAL</td>
+                                        <td class="text-right"><span t-field="doc.amount_total_d10"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Bloc Transit -->
+                        <div class="import-box">
+                            <div class="section-title">BLOC TRANSIT</div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div><strong>Transitaire :</strong> <span t-field="doc.forwarder_id.name"/></div>
+                                    <div><strong>N° Facture Transit :</strong> <span t-field="doc.transit_invoice_number"/></div>
+                                </div>
+                                <div class="col-6">
+                                    <div><strong>Montant HT :</strong> <span t-field="doc.transit_amount_ht"/></div>
+                                    <div><strong>TVA Transit :</strong> <span t-field="doc.transit_amount_tva"/> (<span t-field="doc.transit_tva_rate"/>%)</div>
+                                    <div><strong>Montant TTC :</strong> <span t-field="doc.transit_amount_ttc"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloc Autres Frais -->
+                        <div class="import-box">
+                            <div class="section-title">BLOC AUTRES (FRAIS ANNEXES)</div>
+                            <table class="table-details">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th class="text-right">Montant HT</th>
+                                        <th class="text-right">TVA</th>
+                                        <th class="text-right">Total TTC</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.expense_line_ids" t-as="line">
+                                        <tr>
+                                            <td><span t-field="line.name"/></td>
+                                            <td class="text-right"><span t-field="line.amount"/></td>
+                                            <td class="text-right"><span t-field="line.tva_amount"/></td>
+                                            <td class="text-right"><span t-field="line.total_amount"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr class="total-row">
+                                        <td colspan="3">TOTAL GÉNÉRAL AUTRES FRAIS</td>
+                                        <td class="text-right"><span t-field="doc.total_expenses_ttc"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Coût de Revient Final -->
+                        <div class="row mt-4">
+                            <div class="col-6 offset-6">
+                                <table class="table-details">
+                                    <tr class="total-row h4">
+                                        <td>COÛT DE REVIENT TOTAL</td>
+                                        <td class="text-right text-success"><span t-field="doc.total_cost_price"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

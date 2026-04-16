@@ -27,6 +27,7 @@
                 <header>
                     <button name="action_confirm" string="Confirmer" type="object" invisible="state != 'draft'" class="oe_highlight"/>
                     <button name="action_done" string="Réceptionné" type="object" invisible="state != 'customs'" class="oe_highlight"/>
+                    <button name="%(importation.action_report_fiche_importation)d" string="Imprimer Fiche Importation" type="action" invisible="state != 'confirmed'" class="btn-primary"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,shipped,customs,received" options="{'clickable': '1'}"/>
                 </header>
                 <sheet>
@@ -41,8 +42,14 @@
                         </group>
                         <group string="Section Douane (D10)" name="group_d10">
                             <field name="d10_number"/>
-                            <field name="d10_nature"/>
                             <field name="date_d10"/>
+                            <field name="d10_nature"/>
+                            <field name="receipt_number"/>
+                            <group>
+                                <field name="rps_frais"/>
+                                <field name="amd_frais"/>
+                                <field name="tel_frais"/>
+                            </group>
                         </group>
                     </group>
 

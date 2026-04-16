@@ -25,6 +25,7 @@
         'data/currency_data.xml',
         'views/import_tracking_views.xml',
         'views/menus.xml',
+        'report/import_tracking_reports.xml',
     ],
     'installable': True,
     'application': True,
