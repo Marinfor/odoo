@@ -1,199 +1,270 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="paperformat_fiche_importation" model="report.paperformat">
+        <field name="name">Fiche Importation A4</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
     <record id="action_report_fiche_importation" model="ir.actions.report">
         <field name="name">Fiche Importation</field>
         <field name="model">import.tracking</field>
-        <field name="report_type">qweb-html</field>
+        <field name="report_type">qweb-pdf</field>
         <field name="report_name">importation.report_fiche_importation_template</field>
         <field name="report_file">importation.report_fiche_importation_template</field>
         <field name="print_report_name">'Fiche Importation - %s' % (object.name)</field>
         <field name="binding_model_id" ref="model_import_tracking"/>
         <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="importation.paperformat_fiche_importation"/>
     </record>
 
     <template id="report_fiche_importation_template">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="font-family: Arial, sans-serif; color: #000; line-height: 1.4; padding: 20px; font-size: 10px;">
+                    <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; color: #111; line-height: 1.5; font-size: 11px;">
                         
                         <style>
+                            @page {
+                                size: A4;
+                                margin: 0;
+                            }
+                            .report-container {
+                                padding: 15mm;
+                                background: white;
+                            }
                             .doc-title {
-                                font-size: 18px;
-                                font-weight: bold;
+                                font-size: 22px;
+                                font-weight: 800;
                                 text-align: center;
-                                margin: 25px 0;
+                                margin: 30px 0;
+                                letter-spacing: 2px;
                                 text-transform: uppercase;
-                                border-top: 1px solid #000;
-                                border-bottom: 1px solid #000;
-                                padding: 6px 0;
+                                border-top: 2px solid #000;
+                                border-bottom: 2px solid #000;
+                                padding: 8px 0;
                             }
                             .section-separator {
-                                border-top: 1px solid #000;
-                                margin-top: 20px;
-                                margin-bottom: 15px;
+                                border-top: 1px solid #ddd;
+                                margin: 20px 0;
                             }
-                            .section-label {
-                                font-weight: bold;
+                            .section-title {
+                                font-weight: 700;
                                 text-transform: uppercase;
                                 font-size: 10px;
-                                margin-bottom: 8px;
+                                margin-bottom: 12px;
+                                color: #444;
+                                border-left: 3px solid #000;
+                                padding-left: 8px;
+                                letter-spacing: 0.5px;
                             }
                             .data-table {
                                 width: 100%;
                                 border-collapse: collapse;
                             }
                             .data-table td {
-                                padding: 4px 0;
-                                border-bottom: 1px solid #eee;
+                                padding: 6px 0;
+                                border-bottom: 1px solid #f0f0f0;
                             }
-                            .lbl { font-weight: bold; text-transform: uppercase; font-size: 9px; width: 130px; }
-                            .val { border-bottom: 1px solid #eee; min-height: 14px; }
-                            .amount { text-align: right; font-weight: bold; }
-                            .grand-total-table {
+                            .lbl { 
+                                font-weight: 600; 
+                                text-transform: uppercase; 
+                                font-size: 9px; 
+                                color: #666;
+                                width: 140px; 
+                            }
+                            .val { 
+                                border-bottom: 1px solid #f0f0f0; 
+                                min-height: 18px;
+                                color: #000;
+                            }
+                            .amount { 
+                                text-align: right; 
+                                font-weight: 700; 
+                                font-family: 'Courier', monospace;
+                            }
+                            .grand-total-box {
                                 width: 100%;
-                                margin-top: 30px;
-                                border-top: 1.5px solid #000;
-                                border-bottom: 1.5px solid #000;
-                                padding: 10px 0;
+                                margin-top: 40px;
+                                border: 2px solid #000;
+                                padding: 15px;
+                                background-color: #f9f9f9;
+                            }
+                            .header-box {
+                                display: flex; 
+                                justify-content: space-between; 
+                                border-bottom: 1px solid #000; 
+                                padding-bottom: 8px;
+                                margin-bottom: 5px;
+                            }
+                            .col-title {
+                                font-size: 9px;
+                                font-weight: 700;
+                                color: #888;
+                                margin-bottom: 5px;
+                                text-transform: uppercase;
                             }
                         </style>
 
-                        <!-- Header Ref/Contrat -->
-                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #000; padding-bottom: 5px;">
-                            <div>
-                                <span class="lbl" style="width: auto;">REF :</span>
-                                <span style="font-weight: bold; font-size: 11px; margin-left: 10px;"><t t-esc="doc.name"/></span>
-                            </div>
-                            <div style="text-align: right;">
-                                <t t-if="doc.contract_number">
-                                    <span class="lbl" style="width: auto;">CONTRAT :</span>
-                                    <span style="font-weight: bold; font-size: 11px; margin-left: 10px;"><t t-esc="doc.contract_number"/></span>
-                                </t>
-                            </div>
-                        </div>
-
-                        <div class="doc-title">FICHE D'IMPORTATION</div>
-
-                        <!-- SECTION FOURNISSEUR -->
-                        <div class="section-label">Informations Fournisseur</div>
-                        <div style="padding-left: 5px;">
-                            <div style="display: flex; margin-bottom: 4px;">
-                                <div class="lbl">FOURNISSEUR :</div>
-                                <div class="val" style="font-weight: bold; flex-grow: 1;"><t t-esc="doc.partner_id.name"/></div>
-                            </div>
-                            <div style="display: flex; margin-bottom: 10px;">
-                                <div class="lbl">ADRESSE :</div>
-                                <div class="val" style="flex-grow: 1;">
-                                    <t t-esc="doc.partner_id.street"/>, <t t-esc="doc.partner_id.city"/> <t t-esc="doc.partner_id.country_id.name"/>
+                        <div class="report-container">
+                            <!-- Header Ref/Contrat -->
+                            <div class="header-box">
+                                <div>
+                                    <span class="lbl" style="width: auto;">RÉFÉRENCE INTERNE :</span>
+                                    <span style="font-weight: 800; font-size: 13px; margin-left: 10px;"><t t-esc="doc.name"/></span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <t t-if="doc.contract_number">
+                                        <span class="lbl" style="width: auto;">CONTRAT N° :</span>
+                                        <span style="font-weight: 800; font-size: 13px; margin-left: 10px;"><t t-esc="doc.contract_number"/></span>
+                                    </t>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div style="display: flex; margin-bottom: 4px;">
-                                        <div class="lbl">FACTURE N° :</div>
-                                        <div class="val" style="flex-grow: 1;"><t t-esc="doc.invoice_number"/></div>
-                                    </div>
-                                    <div style="display: flex;">
-                                        <div class="lbl">DATE :</div>
-                                        <div class="val" style="flex-grow: 1;"><t t-esc="doc.invoice_date"/></div>
+
+                            <div class="doc-title">Fiche de Suivi d'Importation</div>
+
+                            <!-- SECTION FOURNISSEUR -->
+                            <div class="section-title">Identification du Fournisseur</div>
+                            <div style="padding-left: 10px; margin-bottom: 25px;">
+                                <div style="display: flex; margin-bottom: 6px;">
+                                    <div class="lbl">NOM DU FOURNISSEUR :</div>
+                                    <div class="val" style="font-weight: 700; flex-grow: 1; font-size: 12px;"><t t-esc="doc.partner_id.name"/></div>
+                                </div>
+                                <div style="display: flex; margin-bottom: 15px;">
+                                    <div class="lbl">ADRESSE COMPLÈTE :</div>
+                                    <div class="val" style="flex-grow: 1; color: #555;">
+                                        <t t-esc="doc.partner_id.street"/>, <t t-esc="doc.partner_id.city"/> <t t-esc="doc.partner_id.country_id.name"/>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div style="display: flex; margin-bottom: 4px;">
-                                        <div class="lbl">MONTANT DEVISE :</div>
-                                        <div class="val" style="text-align: right; flex-grow: 1; font-weight: bold;">
-                                            <t t-esc="doc.initial_amount" t-options='{"widget": "monetary", "display_currency": doc.initial_currency_id}'/>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div style="display: flex; margin-bottom: 6px;">
+                                            <div class="lbl">FACTURE N° :</div>
+                                            <div class="val" style="flex-grow: 1; font-weight: 600;"><t t-esc="doc.invoice_number"/></div>
+                                        </div>
+                                        <div style="display: flex;">
+                                            <div class="lbl">DATE FACTURE :</div>
+                                            <div class="val" style="flex-grow: 1;"><t t-esc="doc.invoice_date" t-options='{"widget": "date"}'/></div>
                                         </div>
                                     </div>
-                                    <div style="display: flex;">
-                                        <div class="lbl">TOTAL (DZD) :</div>
-                                        <div class="val" style="text-align: right; flex-grow: 1; font-weight: bold;"><t t-esc="doc.amount_dzd_working" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></div>
+                                    <div class="col-6">
+                                        <div style="display: flex; margin-bottom: 6px;">
+                                            <div class="lbl">MONTANT DEVISE :</div>
+                                            <div class="val" style="text-align: right; flex-grow: 1; font-weight: 700;">
+                                                <t t-esc="doc.initial_amount" t-options='{"widget": "monetary", "display_currency": doc.initial_currency_id}'/>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex;">
+                                            <div class="lbl">CONTRE-VALEUR (DZD) :</div>
+                                            <div class="val" style="text-align: right; flex-grow: 1; font-weight: 700;"><t t-esc="doc.amount_dzd_working" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="section-separator"></div>
+                            <div class="section-separator"></div>
 
-                        <!-- SECTION DOUANE ALGERIENNE -->
-                        <div class="section-label">Douane Algérienne</div>
-                        <div style="padding-left: 5px;">
-                            <div class="row mb-3">
-                                <div class="col-4">
-                                    <span class="lbl" style="width: auto;">D10 N° :</span> <span class="val" style="display: inline-block; width: 90px;"><t t-esc="doc.d10_number"/></span>
+                            <!-- SECTION DOUANE ALGERIENNE -->
+                            <div class="section-title">Déclaration en Douane (Alger)</div>
+                            <div style="padding-left: 10px; margin-bottom: 25px;">
+                                <div class="row mb-4">
+                                    <div class="col-4">
+                                        <div class="col-title">D10 NUMÉRO</div>
+                                        <div class="val" style="font-weight: 700;"><t t-esc="doc.d10_number"/></div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="col-title">DATE DÉCLARATION</div>
+                                        <div class="val"><t t-esc="doc.date_d10" t-options='{"widget": "date"}'/></div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="col-title">QUITTANCE N°</div>
+                                        <div class="val" style="font-weight: 800; border-bottom: 2px solid #000;"><t t-esc="doc.receipt_number"/></div>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <span class="lbl" style="width: auto;">DATE :</span> <span class="val" style="display: inline-block; width: 90px;"><t t-esc="doc.date_d10"/></span>
+
+                                <div class="row">
+                                    <div class="col-6 pr-4" style="border-right: 1px solid #eee;">
+                                        <div class="col-title">Taxes sur Produits</div>
+                                        <table class="data-table">
+                                            <tr><td>DROIT DE DOUANE (DD)</td><td class="amount"><t t-esc="doc.amount_dd" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>TVA IMPORTATION</td><td class="amount"><t t-esc="doc.amount_tva" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>PRCT / IBS</td><td class="amount"><t t-esc="doc.amount_prct" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>TCS</td><td class="amount"><t t-esc="doc.amount_tcs" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-6 pl-4">
+                                        <div class="col-title">Frais de Quittance</div>
+                                        <table class="data-table">
+                                            <tr><td>RPS (Redevance Prestat.)</td><td class="amount"><t t-esc="doc.rps_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>AMD (Amende)</td><td class="amount"><t t-esc="doc.amd_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>TEL (Télécom)</td><td class="amount"><t t-esc="doc.tel_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>DU (Droits d'Usage)</td><td class="amount"><t t-esc="doc.du_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                        </table>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <span class="lbl" style="width: auto;">QUITTANCE N° :</span> <span class="val" style="display: inline-block; width: 90px; font-weight: bold;"><t t-esc="doc.receipt_number"/></span>
+                                
+                                <div style="text-align: right; margin-top: 15px; border-top: 1px solid #000; padding-top: 8px;">
+                                    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #444;">MONTANT TOTAL QUITTANCE :</span>
+                                    <span style="font-size: 16px; font-weight: 800; margin-left: 20px; font-family: 'Courier', monospace;">
+                                        <t t-esc="doc.amount_total_d10" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </span>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <!-- Colonne 1: Taxes Produits -->
-                                <div class="col-6 pr-4" style="border-right: 1px solid #eee;">
-                                    <div style="font-size: 9px; font-weight: bold; margin-bottom: 4px;">TAXES SUR PRODUITS</div>
-                                    <table class="data-table">
-                                        <tr><td>DROIT DE DOUANE (DD)</td><td class="amount"><t t-esc="doc.amount_dd" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr><td>TVA IMPORTATION</td><td class="amount"><t t-esc="doc.amount_tva" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr><td>PRCT / IBS</td><td class="amount"><t t-esc="doc.amount_prct" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr><td>TCS</td><td class="amount"><t t-esc="doc.amount_tcs" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                    </table>
+                            <div class="section-separator"></div>
+
+                            <!-- SECTION TRANSIT -->
+                            <div class="section-title">Prestations Transit &amp; Logistique</div>
+                            <div style="padding-left: 10px;">
+                                <div class="row">
+                                    <div class="col-7">
+                                        <div style="display: flex; margin-bottom: 6px;">
+                                            <div class="lbl">NOM DU TRANSITAIRE :</div>
+                                            <div class="val" style="flex-grow: 1; font-weight: 600;"><t t-esc="doc.forwarder_id.name"/></div>
+                                        </div>
+                                        <div style="display: flex;">
+                                            <div class="lbl">FACTURE TRANSIT N° :</div>
+                                            <div class="val" style="flex-grow: 1;"><t t-esc="doc.transit_invoice_number"/></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <table class="data-table">
+                                            <tr><td>MONTANT H.T</td><td class="amount"><t t-esc="doc.transit_amount_ht" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td style="color: #888;">TVA (<t t-esc="doc.transit_tva_rate"/>%)</td><td class="amount" style="color: #888;"><t t-esc="doc.transit_amount_tva" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr style="border-top: 1px solid #000; font-weight: 800;">
+                                                <td style="padding-top: 8px;">TOTAL T.T.C</td>
+                                                <td class="amount" style="padding-top: 8px;"><t t-esc="doc.transit_amount_ttc" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                            </tr>
+                                        </table>
+                                    </div>
                                 </div>
-                                <!-- Colonne 2: Frais Quittance -->
-                                <div class="col-6 pl-4">
-                                    <div style="font-size: 9px; font-weight: bold; margin-bottom: 4px;">FRAIS FIXES &amp; QUITTANCE</div>
-                                    <table class="data-table">
-                                        <tr><td>RPS</td><td class="amount"><t t-esc="doc.rps_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr><td>AMD</td><td class="amount"><t t-esc="doc.amd_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr><td>TEL</td><td class="amount"><t t-esc="doc.tel_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr><td>DU</td><td class="amount"><t t-esc="doc.du_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                    </table>
+                            </div>
+
+                            <!-- SECTION COÛT TOTAL -->
+                            <div class="grand-total-box">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                                        Coût de Revient Total de l'Opération
+                                    </div>
+                                    <div style="text-align: right; font-size: 24px; font-weight: 900; font-family: 'Courier', monospace;">
+                                        <t t-esc="doc.total_cost_price" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div style="text-align: right; font-weight: bold; margin-top: 10px; border-top: 1px solid #000; padding-top: 4px;">
-                                <span style="font-size: 10px; text-transform: uppercase;">MONTANT QUITTANCE TOTAL :</span>
-                                <span style="font-size: 13px; margin-left: 15px;"><t t-esc="doc.amount_total_d10" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></span>
+                            <div style="margin-top: 30px; font-size: 8px; color: #aaa; text-align: center; font-style: italic;">
+                                Document généré par le système de gestion des importations - <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
                             </div>
+
                         </div>
-
-                        <div class="section-separator"></div>
-
-                        <!-- SECTION TRANSIT -->
-                        <div class="section-label">Transit</div>
-                        <div style="padding-left: 5px;">
-                            <div class="row">
-                                <div class="col-7">
-                                    <div style="display: flex; margin-bottom: 4px;">
-                                        <div class="lbl">TRANSITAIRE :</div>
-                                        <div class="val" style="flex-grow: 1;"><t t-esc="doc.forwarder_id.name"/></div>
-                                    </div>
-                                    <div style="display: flex;">
-                                        <div class="lbl">FACTURE N° :</div>
-                                        <div class="val" style="flex-grow: 1;"><t t-esc="doc.transit_invoice_number"/></div>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <table class="data-table">
-                                        <tr><td>MONTANT H.T</td><td class="amount"><t t-esc="doc.transit_amount_ht" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr><td>TVA (<t t-esc="doc.transit_tva_rate"/>%)</td><td class="amount"><t t-esc="doc.transit_amount_tva" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                        <tr style="font-weight: bold;"><td>TOTAL T.T.C</td><td class="amount"><t t-esc="doc.transit_amount_ttc" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- SECTION COÛT TOTAL -->
-                        <table class="grand-total-table">
-                            <tr>
-                                <td style="font-weight: bold; font-size: 11px; text-transform: uppercase;">Coût de Revient Total de l'Importation</td>
-                                <td style="text-align: right; font-size: 18px; font-weight: bold;"><t t-esc="doc.total_cost_price" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
-                            </tr>
-                        </table>
-
                     </div>
                 </t>
             </t>
