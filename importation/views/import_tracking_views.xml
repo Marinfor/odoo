@@ -35,7 +35,7 @@
                         <h1><field name="name" placeholder="Fournisseur - Année - N°"/></h1>
                     </div>
                     <group>
-                        <group string="Partenaires &amp; Facture" name="group_general">
+                        <group string="Partenaire et Facture" name="group_general">
                             <field name="partner_id" options="{'no_create': True}"/>
                             <field name="forwarder_id" options="{'no_create': True}"/>
                             <field name="invoice_number"/>
@@ -44,11 +44,10 @@
                         <group string="Références Additionnelles" name="group_refs">
                             <field name="folder_number"/>
                             <field name="contract_number"/>
-                            <field name="po_number"/>
                         </group>
                     </group>
 
-                    <group string="Gestion des Devises et Conversion" name="group_currency">
+                    <group string="Montant en devise et conversion" name="group_currency">
                         <group>
                             <label for="initial_amount" string="Montant Initial"/>
                             <div class="o_row">
@@ -56,6 +55,7 @@
                                 <field name="initial_currency_id" options="{'no_create': True, 'no_open': True}" class="oe_inline" required="1"/>
                             </div>
                             <field name="exchange_rate" required="1"/>
+                            <field name="amount_fret" widget="monetary" options="{'currency_field': 'initial_currency_id'}" readonly="1" decoration-bf="1"/>
                         </group>
                         <group>
                             <field name="amount_dzd_working" widget="monetary" options="{'currency_field': 'currency_id'}"/>

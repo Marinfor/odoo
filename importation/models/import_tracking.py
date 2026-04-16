@@ -60,6 +60,7 @@ class ImportTracking(models.Model):
         required=True
     )
     exchange_rate = fields.Float(string='Taux de Change', tracking=True, digits=(12, 4), required=True, default=1.0)
+    amount_fret = fields.Monetary(string='FRET (Devise)', compute='_compute_amount_fret', store=True, currency_field='initial_currency_id')
     amount_dzd_working = fields.Monetary(
         string='Montant de Travail (DZD)', 
         compute='_compute_amount_dzd_working', 
@@ -101,6 +102,16 @@ class ImportTracking(models.Model):
     def _compute_amount_dzd_working(self):
         for record in self:
             record.amount_dzd_working = record.initial_amount * record.exchange_rate
+
+    @api.depends('amount_ttc', 'exchange_rate', 'initial_amount')
+    def _compute_amount_fret(self):
+        for record in self:
+            if record.exchange_rate > 0:
+                # FRET = (Total Assiette DZD / Taux) - Montant Initial (Devise)
+                total_devise = record.amount_ttc / record.exchange_rate
+                record.amount_fret = total_devise - record.initial_amount
+            else:
+                record.amount_fret = 0.0
 
     @api.onchange('amount_dzd_working')
     def _onchange_amount_dzd_working(self):
