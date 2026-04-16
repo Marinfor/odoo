@@ -15,12 +15,12 @@
     </record>
 
     <record id="action_report_fiche_importation" model="ir.actions.report">
-        <field name="name">Fiche Importation</field>
+        <field name="name">Fiche d'Importation</field>
         <field name="model">import.tracking</field>
         <field name="report_type">qweb-html</field>
         <field name="report_name">importation.report_fiche_importation_template</field>
         <field name="report_file">importation.report_fiche_importation_template</field>
-        <field name="print_report_name">'Fiche Importation - %s' % (object.name)</field>
+        <field name="print_report_name">'Fiche d\'Importation - %s' % (object.name)</field>
         <field name="binding_model_id" ref="model_import_tracking"/>
         <field name="binding_type">report</field>
         <field name="paperformat_id" ref="importation.paperformat_fiche_importation"/>
@@ -151,7 +151,7 @@
                                 </div>
                             </div>
 
-                            <div class="doc-title">Fiche de Suivi d'Importation</div>
+                            <div class="doc-title">FICHE D'IMPORTATION</div>
 
                             <!-- SECTION FOURNISSEUR -->
                             <div class="section-title">Identification du Fournisseur</div>
@@ -283,10 +283,20 @@
                             </div>
                             
                             <div style="margin-top: 30px; font-size: 8px; color: #aaa; text-align: center; font-style: italic;">
-                                Document généré par le système de gestion des importations - <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
+                                Document généré par le système de gestion des importations
                             </div>
 
                         </div>
+
+                        <!-- Script pour déclencher l'impression navigateur directement -->
+                        <script type="text/javascript">
+                            window.onload = function() {
+                                // On attend un court instant que les assets soient chargés
+                                setTimeout(function() {
+                                    window.print();
+                                }, 500);
+                            };
+                        </script>
                     </div>
                 </t>
             </t>

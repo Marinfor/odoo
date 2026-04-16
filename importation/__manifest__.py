@@ -13,6 +13,7 @@
     'author': 'Votre Nom',
     'depends': [
         'base',
+        'web',
         'purchase',
         'stock',
         'mail', # Pour le chatter (historique et notes)
