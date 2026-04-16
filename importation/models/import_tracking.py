@@ -60,7 +60,6 @@ class ImportTracking(models.Model):
         required=True
     )
     exchange_rate = fields.Float(string='Taux de Change', tracking=True, digits=(12, 4), required=True, default=1.0)
-    amount_fret = fields.Monetary(string='FRET (Devise)', compute='_compute_amount_fret', store=True, currency_field='initial_currency_id')
     amount_dzd_working = fields.Monetary(
         string='Montant de Travail (DZD)', 
         compute='_compute_amount_dzd_working', 
@@ -87,7 +86,19 @@ class ImportTracking(models.Model):
     other_d10_details = fields.Char(string='Détails Taxes D10', placeholder="ex: RPS à 4000 DA")
     amount_total_d10 = fields.Monetary(string='Droits et Taxes', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     
-    # Autres Frais
+    # Section Transitaire (Frais dédiés)
+    forwarder_id = fields.Many2one('res.partner', string='Transitaire', tracking=True)
+    transit_invoice_number = fields.Char(string='Facture Transitaire N°', tracking=True)
+    transit_amount_ht = fields.Monetary(string='Montant Transit HT', currency_field='currency_id', tracking=True)
+    transit_tva_rate = fields.Selection([
+        ('0', '0%'),
+        ('9', '9%'),
+        ('19', '19%')
+    ], string='TVA Transit', default='19', tracking=True)
+    transit_amount_tva = fields.Monetary(string='Montant TVA Transit', compute='_compute_transit_amounts', store=True, currency_field='currency_id')
+    transit_amount_ttc = fields.Monetary(string='Montant Transit TTC', compute='_compute_transit_amounts', store=True, currency_field='currency_id')
+
+    # Autres Frais (Tableau)
     expense_line_ids = fields.One2many('import.tracking.line', 'tracking_id', string='Autres Frais')
     total_expenses_ht = fields.Monetary(string='Total Hors Taxe', compute='_compute_expense_totals', store=True, currency_field='currency_id')
     total_expenses_tva = fields.Monetary(string='Total TVA', compute='_compute_expense_totals', store=True, currency_field='currency_id')
@@ -102,16 +113,6 @@ class ImportTracking(models.Model):
     def _compute_amount_dzd_working(self):
         for record in self:
             record.amount_dzd_working = record.initial_amount * record.exchange_rate
-
-    @api.depends('amount_ttc', 'exchange_rate', 'initial_amount')
-    def _compute_amount_fret(self):
-        for record in self:
-            if record.exchange_rate > 0:
-                # FRET = (Total Assiette DZD / Taux) - Montant Initial (Devise)
-                total_devise = record.amount_ttc / record.exchange_rate
-                record.amount_fret = total_devise - record.initial_amount
-            else:
-                record.amount_fret = 0.0
 
     @api.onchange('amount_dzd_working')
     def _onchange_amount_dzd_working(self):
@@ -138,12 +139,20 @@ class ImportTracking(models.Model):
             record.amount_prct = sum(record.product_line_ids.mapped('amount_prct'))
             record.amount_total_d10 = sum(record.product_line_ids.mapped('amount_total_line')) + record.other_d10_frais
 
-    @api.depends('expense_line_ids.amount', 'expense_line_ids.tva_amount')
+    @api.depends('transit_amount_ht', 'transit_tva_rate')
+    def _compute_transit_amounts(self):
+        for record in self:
+            rate = float(record.transit_tva_rate or 0.0) / 100.0
+            record.transit_amount_tva = record.transit_amount_ht * rate
+            record.transit_amount_ttc = record.transit_amount_ht + record.transit_amount_tva
+
+    @api.depends('expense_line_ids.amount', 'expense_line_ids.tva_amount', 'transit_amount_ht', 'transit_amount_tva')
     def _compute_expense_totals(self):
         for record in self:
-            record.total_expenses_ht = sum(record.expense_line_ids.mapped('amount'))
-            record.total_expenses_tva = sum(record.expense_line_ids.mapped('tva_amount'))
-            record.total_expenses_ttc = sum(record.expense_line_ids.mapped('total_amount'))
+            # On inclut le transit dans les totaux de frais
+            record.total_expenses_ht = sum(record.expense_line_ids.mapped('amount')) + record.transit_amount_ht
+            record.total_expenses_tva = sum(record.expense_line_ids.mapped('tva_amount')) + record.transit_amount_tva
+            record.total_expenses_ttc = record.total_expenses_ht + record.total_expenses_tva
 
     @api.depends('amount_ttc', 'amount_total_d10', 'total_expenses_ttc', 'amount_tva', 'total_expenses_tva')
     def _compute_global_totals(self):

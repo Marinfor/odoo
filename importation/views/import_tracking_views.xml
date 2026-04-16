@@ -35,43 +35,44 @@
                         <h1><field name="name" placeholder="Fournisseur - Année - N°"/></h1>
                     </div>
                     <group>
-                        <group string="Partenaire et Facture" name="group_general">
-                            <field name="partner_id" options="{'no_create': True}"/>
-                            <field name="forwarder_id" options="{'no_create': True}"/>
-                            <field name="invoice_number"/>
-                            <field name="invoice_date"/>
+                        <group string="Références Dossier" name="group_refs">
+                            <field name="folder_number" placeholder="N° de Dossier"/>
+                            <field name="contract_number" placeholder="N° de Contrat"/>
                         </group>
-                        <group string="Références Additionnelles" name="group_refs">
-                            <field name="folder_number"/>
-                            <field name="contract_number"/>
-                        </group>
-                    </group>
-
-                    <group string="Montant en devise et conversion" name="group_currency">
-                        <group>
-                            <label for="initial_amount" string="Montant Initial"/>
-                            <div class="o_row">
-                                <field name="initial_amount" class="oe_inline"/>
-                                <field name="initial_currency_id" options="{'no_create': True, 'no_open': True}" class="oe_inline" required="1"/>
-                            </div>
-                            <field name="exchange_rate" required="1"/>
-                            <field name="amount_fret" widget="monetary" options="{'currency_field': 'initial_currency_id'}" readonly="1" decoration-bf="1"/>
-                        </group>
-                        <group>
-                            <field name="amount_dzd_working" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="currency_id" invisible="1"/>
-                        </group>
-                    </group>
-
-                    <group>
                         <group string="Section Douane (D10)" name="group_d10">
                             <field name="d10_number"/>
                             <field name="d10_nature"/>
                             <field name="date_d10"/>
                         </group>
-                        <group string="Info Financière" name="group_finance_info">
-                            <field name="amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}" string="Assiette Douane Totale" class="text-info font-weight-bold"/>
+                    </group>
+
+                    <group>
+                        <group string="Fournisseur &amp; Initial" name="group_vendor">
+                            <field name="partner_id" options="{'no_create': True}"/>
+                            <field name="invoice_number"/>
+                            <field name="invoice_date"/>
+                            <label for="initial_amount" string="Facture (Devise)"/>
+                            <div class="o_row">
+                                <field name="initial_amount" class="oe_inline"/>
+                                <field name="initial_currency_id" options="{'no_create': True, 'no_open': True}" class="oe_inline" required="1"/>
+                            </div>
+                            <field name="exchange_rate" required="1"/>
+                            <field name="amount_dzd_working" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1"/>
                         </group>
+                        
+                        <group string="Transitaire (Transit)" name="group_transit">
+                            <field name="forwarder_id" options="{'no_create': True}"/>
+                            <field name="transit_invoice_number"/>
+                            <field name="transit_amount_ht" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="transit_tva_rate" widget="radio" options="{'horizontal': true}"/>
+                            <field name="transit_amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="transit_amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Récapitulatif Assiette Douane" name="group_finance_info">
+                        <field name="amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}" string="Assiette Douane Totale" class="text-info font-weight-bold h3"/>
+                        <field name="currency_id" invisible="1"/>
                     </group>
 
                     <div class="row mt-4">
