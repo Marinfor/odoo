@@ -98,7 +98,7 @@ class ImportTracking(models.Model):
         ('9', '9%'),
         ('19', '19%')
     ], string='TVA Transit', default='19', tracking=True)
-    transit_amount_tva = fields.Monetary(string='Montant TVA Transit', compute='_compute_transit_amounts', store=True, currency_field='currency_id')
+    transit_amount_tva = fields.Monetary(string='Montant TVA Transit', currency_field='currency_id', tracking=True)
     transit_amount_ttc = fields.Monetary(string='Montant Transit TTC', compute='_compute_transit_amounts', store=True, currency_field='currency_id')
 
     # Autres Frais (Tableau)
@@ -143,11 +143,9 @@ class ImportTracking(models.Model):
             taxes_base = sum(record.product_line_ids.mapped('amount_total_line'))
             record.amount_total_d10 = taxes_base + record.other_d10_frais + record.rps_frais + record.amd_frais + record.tel_frais + record.du_frais
 
-    @api.depends('transit_amount_ht', 'transit_tva_rate')
+    @api.depends('transit_amount_ht', 'transit_amount_tva')
     def _compute_transit_amounts(self):
         for record in self:
-            rate = float(record.transit_tva_rate or 0.0) / 100.0
-            record.transit_amount_tva = record.transit_amount_ht * rate
             record.transit_amount_ttc = record.transit_amount_ht + record.transit_amount_tva
 
     @api.depends('expense_line_ids.amount', 'expense_line_ids.tva_amount', 'transit_amount_ht', 'transit_amount_tva')
@@ -195,15 +193,13 @@ class ImportTrackingLine(models.Model):
         ('9', '9%'),
         ('19', '19%')
     ], string='Taux TVA', default='19')
-    tva_amount = fields.Monetary(string='Montant TVA', compute='_compute_line_totals', store=True, currency_field='currency_id')
+    tva_amount = fields.Monetary(string='Montant TVA', currency_field='currency_id')
     total_amount = fields.Monetary(string='Montant TTC', compute='_compute_line_totals', store=True, currency_field='currency_id')
     currency_id = fields.Many2one(related='tracking_id.currency_id')
     
-    @api.depends('amount', 'tva_rate')
+    @api.depends('amount', 'tva_amount')
     def _compute_line_totals(self):
         for line in self:
-            rate = float(line.tva_rate or 0.0) / 100.0
-            line.tva_amount = line.amount * rate
             line.total_amount = line.amount + line.tva_amount
 
 class ImportTrackingProductLine(models.Model):

@@ -75,7 +75,6 @@
                             <field name="forwarder_id" options="{'no_create': True}"/>
                             <field name="transit_invoice_number"/>
                             <field name="transit_amount_ht" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="transit_tva_rate" widget="radio" options="{'horizontal': true}"/>
                             <field name="transit_amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="transit_amount_ttc" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1"/>
                         </group>
@@ -134,8 +133,7 @@
                                 <tree editable="bottom">
                                     <field name="name" placeholder="ex: Frais Transitaire, Magasinage..."/>
                                     <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                    <field name="tva_rate"/>
-                                    <field name="tva_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="tva_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                     <field name="total_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
                                     <field name="currency_id" column_invisible="True"/>
                                 </tree>

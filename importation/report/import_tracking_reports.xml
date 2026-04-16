@@ -260,7 +260,7 @@
                                     <div class="col-5">
                                         <table class="data-table">
                                             <tr><td>MONTANT H.T</td><td class="amount"><t t-esc="doc.transit_amount_ht" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                            <tr><td style="color: #888;">TVA (<t t-esc="doc.transit_tva_rate"/>%)</td><td class="amount" style="color: #888;"><t t-esc="doc.transit_amount_tva" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td style="color: #888;">TVA</td><td class="amount" style="color: #888;"><t t-esc="doc.transit_amount_tva" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
                                             <tr style="border-top: 1px solid #000; font-weight: 800;">
                                                 <td style="padding-top: 8px;">TOTAL T.T.C</td>
                                                 <td class="amount" style="padding-top: 8px;"><t t-esc="doc.transit_amount_ttc" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
