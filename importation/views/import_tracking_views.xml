@@ -49,6 +49,7 @@
                                 <field name="rps_frais"/>
                                 <field name="amd_frais"/>
                                 <field name="tel_frais"/>
+                                <field name="du_frais"/>
                             </group>
                         </group>
                     </group>

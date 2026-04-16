@@ -14,199 +14,222 @@
     <template id="report_fiche_importation_template">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
-                <t t-call="web.external_layout">
-                    <div class="page">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11px; color: black; line-height: 1.2;">
+                        <!-- Styles CSS -->
                         <style>
-                            .import-box {
-                                border: 1px solid black;
-                                padding: 10px;
-                                margin-bottom: 20px;
+                            .main-box {
+                                border: 1.5px solid black;
+                                padding: 8px;
+                                margin-bottom: 5px;
+                                position: relative;
                             }
-                            .import-title {
+                            .section-header {
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin-bottom: 5px;
+                                font-size: 12px;
+                            }
+                            .value-line {
+                                display: inline-block;
+                                border-bottom: 0.5px solid #000;
+                                min-width: 150px;
                                 text-align: center;
+                                padding: 0 5px;
+                            }
+                            .label-text {
                                 font-weight: bold;
-                                font-size: 24px;
-                                margin-bottom: 30px;
-                                text-decoration: underline;
+                                font-size: 10px;
+                                white-space: nowrap;
                             }
-                            .section-title {
+                            .total-footer {
+                                text-align: right;
+                                margin-top: 10px;
                                 font-weight: bold;
-                                border-bottom: 1px solid #ddd;
-                                margin-bottom: 10px;
-                                padding-bottom: 5px;
-                                font-size: 18px;
+                                border-top: 1px solid black;
+                                padding-top: 4px;
                             }
-                            .table-details {
-                                width: 100%;
-                                border-collapse: collapse;
-                            }
-                            .table-details th, .table-details td {
-                                border: 1px solid #ccc;
-                                padding: 5px;
-                                text-align: left;
-                            }
-                            .table-details th {
-                                background-color: #f2f2f2;
-                            }
-                            .total-row {
+                            .col-title {
+                                font-size: 16px;
                                 font-weight: bold;
-                                background-color: #eee;
+                                text-align: center;
+                                margin-bottom: 15px;
+                            }
+                            .row-spaced {
+                                margin-bottom: 4px;
+                            }
+                            .border-bottom-only {
+                                border-bottom: 1px solid black;
+                                display: inline-block;
+                                padding-bottom: 0px;
                             }
                         </style>
 
-                        <!-- En-tête -->
-                        <div class="row">
-                            <div class="col-6">
-                                <div><strong>N° DOSSIER :</strong> <span t-field="doc.folder_number"/></div>
-                                <div><strong>CONTRAT :</strong> <span t-field="doc.contract_number"/></div>
+                        <!-- En-tête minimalist -->
+                        <div class="row mb-2">
+                            <div class="col-4">
+                                <strong>N° DOSSIER :</strong> <span class="border-bottom-only" style="min-width: 80px;"><t t-esc="doc.folder_number"/></span>
+                            </div>
+                            <div class="col-4 text-center">
+                                <!-- Place for Year or Code if any -->
+                            </div>
+                            <div class="col-4 text-right">
+                                <t t-if="doc.contract_number"><strong>E14 :</strong> <t t-esc="doc.contract_number"/></t>
                             </div>
                         </div>
 
-                        <div class="import-title">FICHE IMPORTATION</div>
+                        <div class="col-title" style="text-transform: uppercase; font-size: 22px; text-decoration: none;">FICHE IMPORTATION</div>
 
-                        <!-- Bloc Fournisseur -->
-                        <div class="import-box">
-                            <div class="section-title">BLOC FOURNISSEUR</div>
-                            <div class="row">
-                                <div class="col-7">
-                                    <div><strong>Fournisseur :</strong> <span t-field="doc.partner_id.name"/></div>
-                                    <div><strong>Adresse :</strong> 
-                                        <span t-field="doc.partner_id.street"/> 
-                                        <span t-field="doc.partner_id.city"/>
-                                        <span t-field="doc.partner_id.country_id.name"/>
-                                    </div>
-                                    <div><strong>N° Facture :</strong> <span t-field="doc.invoice_number"/></div>
+                        <!-- Section FOURNISSEURS -->
+                        <div class="main-box">
+                            <div class="row-spaced">
+                                <span class="label-text">FOURNISSEURS :</span> <span class="value-line" style="min-width: 300px;"><t t-esc="doc.partner_id.name"/></span>
+                            </div>
+                            <div class="row-spaced" style="border-top: 1px solid black; padding-top: 5px; margin-top: 5px;">
+                                <span class="label-text">ADRES :</span> <span class="value-line" style="min-width: 450px;">
+                                    <t t-esc="doc.partner_id.street"/>, <t t-esc="doc.partner_id.city"/> <t t-esc="doc.partner_id.country_id.name"/>
+                                </span>
+                            </div>
+                            <div class="row-spaced">
+                                <div class="col-6 p-0">
+                                    <span class="label-text">FACTURE FOURNISSEUR :</span> <span class="value-line" style="min-width: 150px;"><t t-esc="doc.invoice_number"/></span>
                                 </div>
-                                <div class="col-5">
-                                    <div><strong>Montant Devise :</strong> 
-                                        <span t-field="doc.initial_amount"/> 
-                                        <span t-field="doc.initial_currency_id.symbol"/>
-                                    </div>
-                                    <div><strong>Total Converti :</strong> 
-                                        <span t-field="doc.amount_dzd_working" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
-                                    </div>
-                                    <div><strong>Taux de change :</strong> <span t-field="doc.exchange_rate"/></div>
+                                <div class="col-6 p-0 text-right">
+                                    <span class="label-text">MONTANT :</span> 
+                                    <span class="value-line" style="min-width: 30px;"><t t-esc="doc.initial_currency_id.symbol"/></span> 
+                                    <span class="value-line" style="min-width: 120px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.initial_amount).replace(',', ' ').replace('.', ',')"/></span>
                                 </div>
+                            </div>
+                            <div class="total-footer" style="border-top: 1px solid black;">
+                                TOTAL : <span style="margin-right: 20px;"><t t-esc="doc.initial_currency_id.symbol"/></span> <t t-esc="'{0:,.2f}'.format(doc.initial_amount).replace(',', ' ').replace('.', ',')"/>
                             </div>
                         </div>
 
-                        <!-- Bloc Douane Algérienne -->
-                        <div class="import-box">
-                            <div class="section-title">DOUANE ALGÉRIENNE</div>
+                        <!-- Section DOUANE ALGERIENNE -->
+                        <div class="section-header" style="margin-top: 10px;">DOUANE ALGERIENNE</div>
+                        <div class="main-box">
+                            <div class="row mb-2">
+                                <div class="col-6 p-0">
+                                    <span class="label-text">N° D10 :</span> <span class="value-line" style="min-width: 250px;"><t t-esc="doc.d10_number"/></span>
+                                </div>
+                                <div class="col-6 p-0 text-right">
+                                    <span class="label-text">DATE D 10 :</span> <span class="value-line" style="min-width: 150px;"><t t-esc="doc.date_d10" t-options='{"widget": "date"}'/></span>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-12 p-0">
+                                    <span class="label-text">NATURE DU D10 :</span> <span class="value-line" style="min-width: 200px;"><t t-esc="doc.d10_nature or 'Revente en l\'état'"/></span>
+                                </div>
+                            </div>
                             <div class="row mb-3">
-                                <div class="col-6">
-                                    <div><strong>N° D10 :</strong> <span t-field="doc.d10_number"/></div>
-                                    <div><strong>Date D10 :</strong> <span t-field="doc.date_d10"/></div>
-                                </div>
-                                <div class="col-6">
-                                    <div><strong>Nature D10 :</strong> <span t-field="doc.d10_nature"/></div>
-                                    <div><strong>N° Quittance :</strong> <span t-field="doc.receipt_number"/></div>
+                                <div class="col-12 p-0">
+                                    <span class="label-text">QUITTANCE N° :</span> <span class="value-line" style="min-width: 300px;"><t t-esc="doc.receipt_number"/></span>
                                 </div>
                             </div>
-                            
-                            <strong>Détails Droits et Taxes :</strong>
-                            <table class="table-details mt-2">
-                                <thead>
-                                    <tr>
-                                        <th>Type de Taxe / Frais</th>
-                                        <th class="text-right">Montant (DZD)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Droits de Douane (DD)</td>
-                                        <td class="text-right"><span t-field="doc.amount_dd"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>TVA (19%)</td>
-                                        <td class="text-right"><span t-field="doc.amount_tva"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>PRCT (2%)</td>
-                                        <td class="text-right"><span t-field="doc.amount_prct"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>TCS (3%)</td>
-                                        <td class="text-right"><span t-field="doc.amount_tcs"/></td>
-                                    </tr>
-                                    <tr t-if="doc.rps_frais > 0">
-                                        <td>RPS</td>
-                                        <td class="text-right"><span t-field="doc.rps_frais"/></td>
-                                    </tr>
-                                    <tr t-if="doc.amd_frais > 0">
-                                        <td>AMD</td>
-                                        <td class="text-right"><span t-field="doc.amd_frais"/></td>
-                                    </tr>
-                                    <tr t-if="doc.tel_frais > 0">
-                                        <td>TEL</td>
-                                        <td class="text-right"><span t-field="doc.tel_frais"/></td>
-                                    </tr>
-                                    <tr t-if="doc.other_d10_frais > 0">
-                                        <td>Autres Taxes Douane (<span t-field="doc.other_d10_details"/>)</td>
-                                        <td class="text-right"><span t-field="doc.other_d10_frais"/></td>
-                                    </tr>
-                                    <tr class="total-row">
-                                        <td>MONTANT QUITTANCE TOTAL</td>
-                                        <td class="text-right"><span t-field="doc.amount_total_d10"/></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
 
-                        <!-- Bloc Transit -->
-                        <div class="import-box">
-                            <div class="section-title">BLOC TRANSIT</div>
                             <div class="row">
-                                <div class="col-6">
-                                    <div><strong>Transitaire :</strong> <span t-field="doc.forwarder_id.name"/></div>
-                                    <div><strong>N° Facture Transit :</strong> <span t-field="doc.transit_invoice_number"/></div>
+                                <!-- Colonne Gauche -->
+                                <div class="col-6 pr-4">
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">DROITS ET TAXES :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.amount_total_d10).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">DROIT DOUANES :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.amount_dd).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">TVA :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.amount_tva).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">PRCT IBS :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.amount_prct).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">TCS :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.amount_tcs).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <div><strong>Montant HT :</strong> <span t-field="doc.transit_amount_ht"/></div>
-                                    <div><strong>TVA Transit :</strong> <span t-field="doc.transit_amount_tva"/> (<span t-field="doc.transit_tva_rate"/>%)</div>
-                                    <div><strong>Montant TTC :</strong> <span t-field="doc.transit_amount_ttc"/></div>
+                                <!-- Colonne Droite -->
+                                <div class="col-6 pl-4">
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 50px; display: inline-block;">DU :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.du_frais).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 50px; display: inline-block;">RPS :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.rps_frais).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 50px; display: inline-block;">AMD :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.amd_frais).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 50px; display: inline-block;">TEL :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.tel_frais).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="text-center" style="margin-top: 15px; font-weight: bold; border-top: 1px dotted black; padding-top: 5px;">
+                                MONTANT QUITTANCE : <span class="value-line" style="min-width: 250px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.amount_total_d10).replace(',', ' ').replace('.', ',')"/> DZD</span>
                             </div>
                         </div>
 
-                        <!-- Bloc Autres Frais -->
-                        <div class="import-box">
-                            <div class="section-title">BLOC AUTRES (FRAIS ANNEXES)</div>
-                            <table class="table-details">
-                                <thead>
-                                    <tr>
-                                        <th>Description</th>
-                                        <th class="text-right">Montant HT</th>
-                                        <th class="text-right">TVA</th>
-                                        <th class="text-right">Total TTC</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="doc.expense_line_ids" t-as="line">
-                                        <tr>
-                                            <td><span t-field="line.name"/></td>
-                                            <td class="text-right"><span t-field="line.amount"/></td>
-                                            <td class="text-right"><span t-field="line.tva_amount"/></td>
-                                            <td class="text-right"><span t-field="line.total_amount"/></td>
-                                        </tr>
-                                    </t>
-                                    <tr class="total-row">
-                                        <td colspan="3">TOTAL GÉNÉRAL AUTRES FRAIS</td>
-                                        <td class="text-right"><span t-field="doc.total_expenses_ttc"/></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <!-- Section TRANSIT -->
+                        <div class="section-header" style="margin-top: 10px;">TRANSIT</div>
+                        <div class="main-box">
+                            <div class="row mb-2">
+                                <div class="col-12 p-0">
+                                    <span class="label-text">FACTURE DE TRANSIT N° :</span> <span class="value-line" style="min-width: 150px;"><t t-esc="doc.transit_invoice_number"/></span>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <span class="label-text">FACTURE DE COMPTANT :</span> <span class="value-line" style="min-width: 150px;"></span>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">MONTANT HT :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.transit_amount_ht).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">TVA : <t t-esc="doc.transit_tva_rate"/> %</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(doc.transit_amount_tva).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                    <div class="row-spaced font-weight-bold">
+                                        <span class="label-text" style="width: 100px; display: inline-block;">MONTANT TTC :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right; border-bottom: 2px solid black;"><t t-esc="'{0:,.2f}'.format(doc.transit_amount_ttc).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="total-footer">
+                                TOTAL : <t t-esc="'{0:,.2f}'.format(doc.transit_amount_ttc).replace(',', ' ').replace('.', ',')"/> DZD
+                            </div>
                         </div>
 
-                        <!-- Coût de Revient Final -->
-                        <div class="row mt-4">
-                            <div class="col-6 offset-6">
-                                <table class="table-details">
-                                    <tr class="total-row h4">
-                                        <td>COÛT DE REVIENT TOTAL</td>
-                                        <td class="text-right text-success"><span t-field="doc.total_cost_price"/></td>
-                                    </tr>
-                                </table>
+                        <!-- Section AUTRE -->
+                        <div class="section-header" style="margin-top: 10px;">AUTRE :</div>
+                        <div class="main-box">
+                            <t t-foreach="doc.expense_line_ids" t-as="line">
+                                <div class="row mb-1">
+                                    <div class="col-7 p-0 overflow-hidden" style="white-space: nowrap;">
+                                        <span class="label-text" style="min-width: 60px; display: inline-block;"><t t-esc="line.name[:25]"/> :</span> 
+                                        <span class="value-line" style="min-width: 250px; border-bottom: 0.5px dotted black;"></span>
+                                    </div>
+                                    <div class="col-5 p-0 text-right">
+                                        <span class="label-text">MONTANT :</span> 
+                                        <span class="value-line" style="width: 150px; text-align: right;"><t t-esc="'{0:,.2f}'.format(line.total_amount).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                    </div>
+                                </div>
+                            </t>
+                            
+                            <!-- Frais de transport placeholder if any -->
+                            <div class="row mt-2" style="border-top: 1px dashed #ccc; padding-top: 5px;">
+                                <div class="col-12 text-right">
+                                    <span class="label-text">TOTAL :</span> 
+                                    <span class="value-line" style="min-width: 150px; text-align: right; border-bottom: 2px solid black;"><t t-esc="'{0:,.2f}'.format(doc.total_expenses_ttc).replace(',', ' ').replace('.', ',')"/> DZD</span>
+                                </div>
                             </div>
                         </div>
                     </div>

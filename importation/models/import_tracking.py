@@ -56,7 +56,8 @@ class ImportTracking(models.Model):
     rps_frais = fields.Monetary(string='RPS', currency_field='currency_id', tracking=True)
     amd_frais = fields.Monetary(string='AMD', currency_field='currency_id', tracking=True)
     tel_frais = fields.Monetary(string='TEL', currency_field='currency_id', tracking=True)
-    other_d10_frais = fields.Monetary(string='Autres Taxes D10', currency_field='currency_id', tracking=True, help="Ex: RPS, etc.")
+    du_frais = fields.Monetary(string='DU', currency_field='currency_id', tracking=True)
+    other_d10_frais = fields.Monetary(string='Autres Taxes D10', currency_field='currency_id', tracking=True)
     initial_amount = fields.Float(string='Montant Initial', tracking=True)
     initial_currency_id = fields.Many2one(
         'res.currency', 
@@ -142,7 +143,7 @@ class ImportTracking(models.Model):
             record.amount_tva = sum(record.product_line_ids.mapped('amount_tva'))
             record.amount_prct = sum(record.product_line_ids.mapped('amount_prct'))
             taxes_base = sum(record.product_line_ids.mapped('amount_total_line'))
-            record.amount_total_d10 = taxes_base + record.other_d10_frais + record.rps_frais + record.amd_frais + record.tel_frais
+            record.amount_total_d10 = taxes_base + record.other_d10_frais + record.rps_frais + record.amd_frais + record.tel_frais + record.du_frais
 
     @api.depends('transit_amount_ht', 'transit_tva_rate')
     def _compute_transit_amounts(self):
