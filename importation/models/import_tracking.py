@@ -32,6 +32,11 @@ class ImportTracking(models.Model):
         default='/',
         placeholder="La référence sera générée automatiquement : Fournisseur - Année - N°"
     )
+
+    # Références et Dossiers (Options)
+    folder_number = fields.Char(string='N° de Dossier', tracking=True)
+    contract_number = fields.Char(string='N° de Contrat', tracking=True)
+    po_number = fields.Char(string='PO (Purchase Order)', tracking=True)
     
     # Informations Partenaires
     partner_id = fields.Many2one('res.partner', string='Fournisseur', required=True, tracking=True)
@@ -40,13 +45,33 @@ class ImportTracking(models.Model):
     # Information Facture
     invoice_number = fields.Char(string='Référence Facture', tracking=True)
     invoice_date = fields.Date(string='Date de la Facture', tracking=True)
+    
+    # Section Douane et D10
+    d10_number = fields.Char(string='N° D10', tracking=True)
+    d10_nature = fields.Char(string='Nature du D10', tracking=True)
     date_d10 = fields.Date(string='Date D10', tracking=True)
     
-    # Finances
+    # Gestion des Devises et Conversion
+    initial_amount = fields.Float(string='Montant Initial', tracking=True)
+    initial_currency_id = fields.Many2one(
+        'res.currency', 
+        string='Devise Initiale',
+        domain="[('name', 'in', ('EUR', 'USD', 'DZD'))]",
+        required=True
+    )
+    exchange_rate = fields.Float(string='Taux de Change', tracking=True, digits=(12, 4), required=True, default=1.0)
+    amount_dzd_working = fields.Monetary(
+        string='Montant de Travail (DZD)', 
+        compute='_compute_amount_dzd_working', 
+        store=True,
+        currency_field='currency_id'
+    )
+
     currency_id = fields.Many2one(
         'res.currency', 
-        string='Devise', 
-        default=lambda self: self.env['res.currency'].search([('name', '=', 'DZD')], limit=1) or self.env.company.currency_id
+        string='Devise de Calcul', 
+        default=lambda self: self.env['res.currency'].search([('name', '=', 'DZD')], limit=1) or self.env.company.currency_id,
+        readonly=True
     )
     # Détails des Produits (D10)
     product_line_ids = fields.One2many('import.tracking.product.line', 'tracking_id', string='Produits Importés')
@@ -59,7 +84,7 @@ class ImportTracking(models.Model):
     amount_tcs = fields.Monetary(string='TCS (3%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     other_d10_frais = fields.Monetary(string='Autres Taxes D10', currency_field='currency_id', tracking=True, help="Ex: RPS, etc.")
     other_d10_details = fields.Char(string='Détails Taxes D10', placeholder="ex: RPS à 4000 DA")
-    amount_total_d10 = fields.Monetary(string='Total Taxes D10', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
+    amount_total_d10 = fields.Monetary(string='Droits et Taxes', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     
     # Autres Frais
     expense_line_ids = fields.One2many('import.tracking.line', 'tracking_id', string='Autres Frais')
@@ -69,8 +94,28 @@ class ImportTracking(models.Model):
 
     # Synthèse Globale et Coût de Revient
     total_amount_global = fields.Monetary(string='Montant Total TTC', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
-    total_tva_global = fields.Monetary(string='Total TVA Global', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
+    total_tva_global = fields.Monetary(string='TVA', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
     total_cost_price = fields.Monetary(string='Coût de Revient Total', compute='_compute_global_totals', store=True, currency_field='currency_id', tracking=True)
+
+    @api.depends('initial_amount', 'exchange_rate')
+    def _compute_amount_dzd_working(self):
+        for record in self:
+            record.amount_dzd_working = record.initial_amount * record.exchange_rate
+
+    @api.onchange('amount_dzd_working')
+    def _onchange_amount_dzd_working(self):
+        """Si on a un montant de travail et un seul produit (ou pas de produit), 
+        on propose de mettre à jour l'assiette douane."""
+        if self.amount_dzd_working > 0:
+            if not self.product_line_ids:
+                # Créer une ligne par défaut
+                self.product_line_ids = [(0, 0, {
+                    'name': 'Produit Importé',
+                    'amount_base': self.amount_dzd_working,
+                })]
+            elif len(self.product_line_ids) == 1:
+                # Mettre à jour la ligne existante
+                self.product_line_ids[0].amount_base = self.amount_dzd_working
 
     @api.depends('product_line_ids.amount_base', 'product_line_ids.amount_dd', 'product_line_ids.amount_tva', 'product_line_ids.amount_tcs', 'product_line_ids.amount_prct', 'other_d10_frais')
     def _compute_d10_amounts(self):
