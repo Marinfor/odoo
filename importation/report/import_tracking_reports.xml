@@ -200,10 +200,10 @@
                                     <div class="col-6 pl-3">
                                         <div style="font-size: 10px; font-weight: bold; margin-bottom: 5px;">FRAIS FIXES &amp; QUITTANCE</div>
                                         <table class="data-table">
-                                            <tr><td>REDEVANCE (RPS)</td><td class="amount-cell"><t t-esc="doc.rps_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                            <tr><td>AMD / MAGASINAGE</td><td class="amount-cell"><t t-esc="doc.amd_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                            <tr><td>TEL / DIVERS</td><td class="amount-cell"><t t-esc="doc.tel_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                            <tr><td>DROIT D'USAGE (DU)</td><td class="amount-cell"><t t-esc="doc.du_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>RPS</td><td class="amount-cell"><t t-esc="doc.rps_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>AMD</td><td class="amount-cell"><t t-esc="doc.amd_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>TEL</td><td class="amount-cell"><t t-esc="doc.tel_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>DU</td><td class="amount-cell"><t t-esc="doc.du_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
                                         </table>
                                     </div>
                                 </div>

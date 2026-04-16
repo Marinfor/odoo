@@ -39,17 +39,21 @@
                         <group string="Références Dossier" name="group_refs">
                             <field name="contract_number" placeholder="N° de Contrat"/>
                         </group>
-                        <group string="Douane Algérienne" name="group_d10">
+                    </group>
+                    <group string="Douane Algérienne" name="group_d10">
+                        <group name="d10_left">
                             <field name="d10_number"/>
                             <field name="date_d10"/>
                             <field name="d10_nature"/>
                             <field name="receipt_number"/>
-                            <group>
-                                <field name="rps_frais"/>
-                                <field name="amd_frais"/>
-                                <field name="tel_frais"/>
-                                <field name="du_frais"/>
-                            </group>
+                        </group>
+                        <group name="d10_right">
+                            <field name="rps_frais" string="RPS"/>
+                            <field name="amd_frais" string="AMD"/>
+                            <field name="tel_frais" string="TEL"/>
+                            <field name="du_frais" string="DU"/>
+                            <field name="other_d10_details" invisible="other_d10_frais == 0"/>
+                            <field name="other_d10_frais"/>
                         </group>
                     </group>
 
