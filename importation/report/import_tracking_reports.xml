@@ -222,12 +222,11 @@
                                         </table>
                                     </div>
                                     <div class="col-6 pl-4">
-                                        <div class="col-title">Frais de Quittance</div>
                                         <table class="data-table">
-                                            <tr><td>RPS (Redevance Prestat.)</td><td class="amount"><t t-esc="doc.rps_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                            <tr><td>AMD (Amende)</td><td class="amount"><t t-esc="doc.amd_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                            <tr><td>TEL (Télécom)</td><td class="amount"><t t-esc="doc.tel_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
-                                            <tr><td>DU (Droits d'Usage)</td><td class="amount"><t t-esc="doc.du_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>RPS</td><td class="amount"><t t-esc="doc.rps_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>AMD</td><td class="amount"><t t-esc="doc.amd_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>TEL</td><td class="amount"><t t-esc="doc.tel_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+                                            <tr><td>DU</td><td class="amount"><t t-esc="doc.du_frais" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
                                         </table>
                                     </div>
                                 </div>
