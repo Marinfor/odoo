@@ -30,7 +30,7 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; color: #111; line-height: 1.5; font-size: 11px;">
+                    <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; color: #111; line-height: 1.5; font-size: 13px;">
                         
                         <style>
                             @page {
@@ -81,7 +81,7 @@
                             .section-title {
                                 font-weight: 700;
                                 text-transform: uppercase;
-                                font-size: 10px;
+                                font-size: 12px;
                                 margin-bottom: 12px;
                                 color: #444;
                                 border-left: 3px solid #000;
@@ -98,10 +98,9 @@
                             }
                             .lbl { 
                                 font-weight: 600; 
-                                text-transform: uppercase; 
-                                font-size: 9px; 
+                                font-size: 11px; 
                                 color: #666;
-                                width: 140px; 
+                                width: 160px; 
                             }
                             .val { 
                                 border-bottom: 1px solid #f0f0f0; 
@@ -128,7 +127,7 @@
                                 margin-bottom: 5px;
                             }
                             .col-title {
-                                font-size: 9px;
+                                font-size: 11px;
                                 font-weight: 700;
                                 color: #888;
                                 margin-bottom: 5px;
@@ -141,12 +140,12 @@
                             <div class="header-box">
                                 <div>
                                     <span class="lbl" style="width: auto;">RÉFÉRENCE INTERNE :</span>
-                                    <span style="font-weight: 800; font-size: 13px; margin-left: 10px;"><t t-esc="doc.name"/></span>
+                                    <span style="font-weight: 800; font-size: 15px; margin-left: 10px;"><t t-esc="doc.name"/></span>
                                 </div>
                                 <div style="text-align: right;">
                                     <t t-if="doc.contract_number">
                                         <span class="lbl" style="width: auto;">CONTRAT N° :</span>
-                                        <span style="font-weight: 800; font-size: 13px; margin-left: 10px;"><t t-esc="doc.contract_number"/></span>
+                                        <span style="font-weight: 800; font-size: 15px; margin-left: 10px;"><t t-esc="doc.contract_number"/></span>
                                     </t>
                                 </div>
                             </div>
@@ -158,7 +157,7 @@
                             <div style="padding-left: 10px; margin-bottom: 25px;">
                                 <div style="display: flex; margin-bottom: 6px;">
                                     <div class="lbl">NOM DU FOURNISSEUR :</div>
-                                    <div class="val" style="font-weight: 700; flex-grow: 1; font-size: 12px;"><t t-esc="doc.partner_id.name"/></div>
+                                    <div class="val" style="font-weight: 700; flex-grow: 1; font-size: 15px;"><t t-esc="doc.partner_id.name"/></div>
                                 </div>
                                 <div style="display: flex; margin-bottom: 15px;">
                                     <div class="lbl">ADRESSE COMPLÈTE :</div>
@@ -234,7 +233,7 @@
                                 </div>
                                 
                                 <div style="text-align: right; margin-top: 15px; border-top: 1px solid #000; padding-top: 8px;">
-                                    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #444;">MONTANT TOTAL QUITTANCE :</span>
+                                    <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #444;">MONTANT TOTAL QUITTANCE :</span>
                                     <span style="font-size: 16px; font-weight: 800; margin-left: 20px; font-family: 'Courier', monospace;">
                                         <t t-esc="doc.amount_total_d10" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                                     </span>
@@ -270,6 +269,41 @@
                                 </div>
                             </div>
 
+                            <div class="section-separator"></div>
+
+                            <!-- SECTION AUTRES FRAIS (TABLEAU) -->
+                            <t t-if="doc.expense_line_ids">
+                                <div class="section-title">Autres Frais et Charges Diverses</div>
+                                <div style="padding-left: 10px; margin-bottom: 25px;">
+                                    <table class="data-table" style="margin-bottom: 15px;">
+                                        <thead>
+                                            <tr style="border-bottom: 2px solid #000;">
+                                                <th class="lbl" style="text-align: left; padding: 8px 0;">DESCRIPTION DES FRAIS</th>
+                                                <th class="lbl" style="text-align: right; padding: 8px 0; width: 100px;">BASE H.T</th>
+                                                <th class="lbl" style="text-align: right; padding: 8px 0; width: 80px;">TVA</th>
+                                                <th class="lbl" style="text-align: right; padding: 8px 0; width: 120px;">TOTAL TTC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="doc.expense_line_ids" t-as="line">
+                                                <tr>
+                                                    <td class="val" style="padding: 8px 0;"><t t-esc="line.name"/></td>
+                                                    <td class="amount" style="padding: 8px 0;"><t t-esc="line.amount" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                                    <td class="amount" style="padding: 8px 0;"><t t-esc="line.tva_amount" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                                    <td class="amount" style="padding: 8px 0; font-weight: 800;"><t t-esc="line.total_amount" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                    <div style="text-align: right; border-top: 1px solid #ddd; padding-top: 8px;">
+                                        <span style="font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase;">TOTAL AUTRES FRAIS : </span>
+                                        <span style="font-size: 14px; font-weight: 800; margin-left: 15px;">
+                                            <t t-esc="doc.table_expenses_ttc" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </t>
+
                             <!-- SECTION COÛT TOTAL -->
                             <div class="grand-total-box">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -282,7 +316,7 @@
                                 </div>
                             </div>
                             
-                            <div style="margin-top: 30px; font-size: 8px; color: #aaa; text-align: center; font-style: italic;">
+                            <div style="margin-top: 30px; font-size: 10px; color: #aaa; text-align: center; font-style: italic;">
                                 Document généré par le système de gestion des importations
                             </div>
 
