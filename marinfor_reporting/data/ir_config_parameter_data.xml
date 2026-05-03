@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="config_parameter_reporting_recipients" model="ir.config_parameter">
+            <field name="key">marinfor_reporting.recipients</field>
+            <field name="value">s.aitmohamed@marinfor-dz.com, sammerkouche@marinfor-dz.com, amerkouche@marinfor-dz.com, rmerkouche@marinfor-dz.com, ymerkouche@marinfor-dz.com</field>
+        </record>
+    </data>
+</odoo>

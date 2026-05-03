@@ -18,7 +18,7 @@
                     </div>
                     <group>
                         <group string="Informations Bancaires">
-                            <field name="banque"/>
+                            <field name="bank_id"/>
                             <field name="beneficiary_id"/>
                         </group>
                         <group string="Dates &amp; Montants">
@@ -30,11 +30,7 @@
                         </group>
                     </group>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -43,11 +39,11 @@
         <field name="name">finance.spot.list</field>
         <field name="model">finance.spot</field>
         <field name="arch" type="xml">
-            <tree decoration-warning="is_near_expiry" decoration-danger="state == 'echue'">
+            <list decoration-warning="is_near_expiry" decoration-danger="state == 'echue'">
                 <field name="name" string="Référence"/>
-                <field name="banque"/>
+                <field name="bank_id"/>
                 <field name="beneficiary_id"/>
-                <field name="currency_id" column_invisible="True"/>
+                <field name="currency_id" column_invisible="1"/>
                 <field name="amount" sum="Total Montants" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="fees_amount" sum="Total Frais" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="date_expiry" string="Échéance"/>
@@ -56,8 +52,8 @@
                        decoration-warning="is_near_expiry"
                        decoration-danger="state == 'echue'"
                        decoration-muted="state == 'rembourse'"/>
-                <field name="is_near_expiry" column_invisible="True"/>
-            </tree>
+                <field name="is_near_expiry" column_invisible="1"/>
+            </list>
         </field>
     </record>
 
@@ -96,7 +92,7 @@
     <record id="action_finance_spot" model="ir.actions.act_window">
         <field name="name">Spots Bancaires</field>
         <field name="res_model">finance.spot</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Déclarez votre premier spot bancaire !

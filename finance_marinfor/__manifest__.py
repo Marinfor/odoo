@@ -9,7 +9,7 @@
     'depends': [
         'base', 
         'web',
-        'mail',  # Indispensable pour la traçabilité et les notifications
+        'mail',
     ],
     'data': [
         'security/ir.model.access.csv',
@@ -19,6 +19,7 @@
         'views/asf_views.xml',
         'views/spot_views.xml',
         'views/menus.xml',
+        'views/res_bank_views.xml',
     ],
     'installable': True,
     'application': True,

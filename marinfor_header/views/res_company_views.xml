@@ -1,0 +1,16 @@
+<odoo>
+    <record id="view_company_form_inherit_marinfor" model="ir.ui.view">
+        <field name="name">res.company.form.inherit.marinfor</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='report_header']" position="after">
+                <group string="Informations Marinfor">
+                    <field name="rc_selection"/>
+                    <field name="nif_selection"/>
+                    <field name="rib_selection"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

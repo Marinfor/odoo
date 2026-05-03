@@ -20,14 +20,7 @@ class FinanceCaution(models.Model):
         ('gbe', 'Garantie de Bonne Exécution (GBE)')
     ], string="Type de Caution", default='soumission', required=True, tracking=True)
     
-    banque = fields.Selection([
-        ('bnp', 'BNP Paribas'),
-        ('sg', 'Société Générale'),
-        ('ca', 'Crédit Agricole'),
-        ('fb', 'FRANSABANK'),
-        ('natixis', 'Natixis'),
-        ('sga', 'SGA')
-    ], string="Banque", required=True, tracking=True)
+    bank_id = fields.Many2one('res.bank', string="Banque", required=True, tracking=True)
     
     beneficiaire = fields.Char(string="Bénéficiaire", required=True, tracking=True)
     
@@ -40,6 +33,17 @@ class FinanceCaution(models.Model):
     date_notification = fields.Date(string="Date de Notification")
     date_limite_depot = fields.Date(string="Date Limite de Dépôt", tracking=True)
     date_depot = fields.Date(string="Date de Dépôt Réelle", tracking=True)
+
+    # --- Délibération ---
+    deliberation_file = fields.Binary(string="PV Délibération (PDF)", attachment=True)
+    deliberation_filename = fields.Char(string="Nom PV")
+
+    # --- Confirmation Échéance ---
+    echeance_confirmee = fields.Selection([
+        ('waiting', 'En attente'),
+        ('accepted', 'Acceptée'),
+        ('rejected', 'Refusée')
+    ], string="Confirmation Échéance", default='waiting', tracking=True)
     
     # --- Logique Spécifique GBE ---
     date_pv_reception = fields.Date(string="Date PV Réception Provisoire")
@@ -65,6 +69,8 @@ class FinanceCaution(models.Model):
     is_near_expiry = fields.Boolean(compute="_compute_alerts", string="Échéance Proche")
     # Nouvelle alerte : Main levée non récupérée après 7 jours
     is_pending_restitution = fields.Boolean(compute="_compute_alerts", string="Restitution en retard")
+    # Alerte Échéance Refusée
+    is_echeance_rejected = fields.Boolean(compute="_compute_alerts", string="Échéance Refusée")
 
     @api.depends('type_caution', 'date_pv_reception', 'duree_garantie')
     def _compute_echeance(self):
@@ -145,12 +151,18 @@ class FinanceCaution(models.Model):
         
         return montant * 0.025 * nb_trimestres
 
-    @api.depends('date_echeance', 'date_limite_depot', 'date_depot', 'state')
+    @api.depends('date_echeance', 'date_limite_depot', 'date_depot', 'state', 'echeance_confirmee', 'type_caution')
     def _compute_alerts(self):
         """ Logique des couleurs Traffic Light """
         today = date.today()
         for record in self:
-            # ROUGE : GBE notifiée, pas encore déposée, et limite dans moins de 2 jours
+            # ROUGE 1 : Échéance refusée (Priorité Haute)
+            record.is_echeance_rejected = (
+                record.type_caution == 'soumission' and 
+                record.echeance_confirmee == 'rejected'
+            )
+
+            # ROUGE 2 : GBE notifiée, pas encore déposée, et limite dans moins de 2 jours
             record.is_late_depot = (
                 record.type_caution == 'gbe' and 
                 not record.date_depot and 

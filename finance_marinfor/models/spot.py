@@ -9,14 +9,7 @@ class FinanceSpot(models.Model):
     _order = 'date_expiry desc'
 
     name = fields.Char(string="N° Spot", required=True, copy=False, default='Nouveau', tracking=True)
-    banque = fields.Selection([
-        ('bnp', 'BNP Paribas'),
-        ('sg', 'Société Générale'),
-        ('ca', 'Crédit Agricole'),
-        ('fb', 'FRANSABANK'),
-        ('natixis', 'Natixis'),
-        ('sga', 'SGA')
-    ], string="Banque", required=True, tracking=True)
+    bank_id = fields.Many2one('res.bank', string="Banque", required=True, tracking=True)
     beneficiary_id = fields.Many2one('res.partner', string="Bénéficiaire", tracking=True)
     
     currency_id = fields.Many2one('res.currency', string='Devise', default=lambda self: self.env.company.currency_id, required=True)

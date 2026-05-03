@@ -4,26 +4,32 @@
         <field name="name">finance.caution.list</field>
         <field name="model">finance.caution</field>
         <field name="arch" type="xml">
-            <tree decoration-danger="is_late_depot" 
+            <list decoration-danger="is_late_depot or is_echeance_rejected" 
                   decoration-warning="is_near_expiry" 
                   decoration-info="state == 'main_levee'" 
                   decoration-muted="state == 'restituee'">
                 <field name="name"/>
                 <field name="type_caution"/>
-                <field name="is_partial_release" column_invisible="True"/>
-                <field name="banque"/>
+                <field name="is_partial_release" column_invisible="1"/>
+                <field name="bank_id"/>
+                <field name="deliberation_file" widget="binary" string="PDF" optional="hide"/>
                 <field name="beneficiaire"/>
-                <field name="currency_id" column_invisible="True"/>
+                <field name="currency_id" column_invisible="1"/>
                 <field name="montant" sum="Total Cautions" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="frais_caution" sum="Total Frais" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="date_echeance"/>
-                <field name="is_late_depot" column_invisible="True"/>
-                <field name="is_near_expiry" column_invisible="True"/>
+                <field name="echeance_confirmee" widget="badge" 
+                       decoration-success="echeance_confirmee == 'accepted'"
+                       decoration-danger="echeance_confirmee == 'rejected'"
+                       invisible="type_caution != 'soumission'"/>
+                <field name="is_late_depot" column_invisible="1"/>
+                <field name="is_near_expiry" column_invisible="1"/>
+                <field name="is_echeance_rejected" column_invisible="1"/>
                 <field name="state" widget="badge" 
                        decoration-success="state == 'active'" 
                        decoration-warning="is_partial_release"
                        decoration-info="state == 'main_levee'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -46,7 +52,7 @@
                     <group>
                         <group string="Configuration">
                             <field name="type_caution" widget="radio" options="{'horizontal': true}"/>
-                            <field name="banque"/>
+                            <field name="bank_id" options="{'no_create': False}"/>
                             <field name="beneficiaire"/>
                         </group>
                         <group string="Données Financières">
@@ -67,6 +73,8 @@
                             <field name="frais_caution" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="date_depot"/>
                             <field name="date_echeance"/>
+                            <field name="echeance_confirmee" widget="radio" options="{'horizontal': true}" 
+                                   invisible="type_caution != 'soumission'"/>
                         </group>
                     </group>
                     <notebook>
@@ -84,17 +92,20 @@
                         </page>
                         <page string="Suivi Soumission" invisible="type_caution != 'soumission'">
                             <group>
-                                <field name="date_soumission"/>
+                                <group>
+                                    <field name="date_soumission"/>
+                                    <field name="date_notification"/>
+                                </group>
+                                <group string="Délibération">
+                                    <field name="deliberation_file" filename="deliberation_filename"/>
+                                    <field name="deliberation_filename" invisible="1"/>
+                                </group>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
 
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -138,7 +149,7 @@
     <record id="action_finance_caution" model="ir.actions.act_window">
         <field name="name">Tableau de bord des Cautions</field>
         <field name="res_model">finance.caution</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Créez votre première caution bancaire !

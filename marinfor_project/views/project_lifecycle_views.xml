@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================ -->
+    <!-- Séquence automatique                                              -->
+    <!-- ================================================================ -->
+    <data noupdate="1">
+        <record id="seq_project_lifecycle" model="ir.sequence">
+            <field name="name">Projet Lifecycle</field>
+            <field name="code">project.lifecycle</field>
+            <field name="prefix">PRJ-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+
+    <!-- ================================================================ -->
+    <!-- VUE FORMULAIRE                                                    -->
+    <!-- ================================================================ -->
+    <record id="view_project_lifecycle_form" model="ir.ui.view">
+        <field name="name">project.lifecycle.form</field>
+        <field name="model">project.lifecycle</field>
+        <field name="priority" eval="1"/>
+        <field name="arch" type="xml">
+            <form string="Projet">
+                <header>
+                    <!-- Boutons de transition selon l'état -->
+                    <button name="action_to_tender" type="object"
+                            string="Soumettre l'Offre"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_to_deliberation" type="object"
+                            string="Offre Soumise"
+                            class="btn-primary"
+                            invisible="state != 'tender'"/>
+                    <button name="action_to_notification" type="object"
+                            string="Notifier"
+                            class="btn-primary"
+                            invisible="state != 'deliberation'"/>
+                    <button name="action_to_administrative" type="object"
+                            string="Phase Administrative"
+                            class="btn-primary"
+                            invisible="state != 'notification'"/>
+                    <button name="action_to_importation" type="object"
+                            string="Lancer l'Importation"
+                            class="btn-primary"
+                            invisible="state != 'administrative'"/>
+                    <button name="action_to_realization" type="object"
+                            string="Réalisation"
+                            class="btn-primary"
+                            invisible="state != 'importation'"/>
+                    <button name="action_done" type="object"
+                            string="Terminer le Projet"
+                            class="btn-success"
+                            invisible="state != 'realization'"/>
+                    <button name="action_realize" type="object"
+                            string="Clôturer (Archive)"
+                            class="btn-primary"
+                            invisible="state != 'done'"/>
+                    <button name="action_cancel" type="object"
+                            string="Annuler"
+                            invisible="state in ('done', 'realized', 'cancelled')"/>
+                    <button name="action_reset_draft" type="object"
+                            string="Remettre en Brouillon"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,tender,deliberation,notification,administrative,importation,realization,done"/>
+                </header>
+                <sheet>
+                    <!-- Bandeau d'alerte si délibération perdue -->
+                    <div class="alert alert-danger" role="alert"
+                         invisible="deliberation_result != 'lost'">
+                        <strong>Projet perdu :</strong> Le résultat après soumission de l'offre a été déclaré "Null". Ce projet est clôturé.
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Informations Générales">
+                            <field name="partner_id"/>
+                            <field name="tender_number"/>
+                            <field name="bank_id"/>
+                            <field name="project_technical_name" string="Nom du Projet"
+                                   invisible="state not in ('notification','administrative','importation','realization','done','realized')"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Résumé">
+                            <field name="import_count" string="Importations"/>
+                            <field name="delivery_status" readonly="1"
+                                   invisible="state not in ('realization','done')"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- =============== Onglet Appel d'Offre =============== -->
+                        <page string="Appel d'Offre" name="page_tender"
+                              invisible="state == 'draft'">
+                            <group>
+                                <group string="Caution de Soumission">
+                                    <field name="caution_soumission_id"/>
+                                    <field name="tender_submission_deadline"/>
+                                    <field name="offer_validity_date"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- =============== Onglet Offre Soumise =============== -->
+                        <page string="Offre Soumise" name="page_deliberation"
+                              invisible="state in ('draft','tender')">
+                            <group>
+                                <group string="Résultat">
+                                    <field name="deliberation_result"/>
+                                    <field name="deliberation_file" filename="deliberation_filename"/>
+                                    <field name="deliberation_filename" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- =============== Onglet Notification =============== -->
+                        <page string="Notification" name="page_notification"
+                              invisible="state in ('draft','tender','deliberation')">
+                            <group>
+                                <group string="Informations de Notification">
+                                    <field name="notification_date"/>
+                                    <field name="delay_days"/>
+                                    <field name="realization_deadline" readonly="1"/>
+                                    <field name="realization_remaining_days" readonly="1" invisible="state not in ('notification','administrative','importation','realization')"/>
+                                    <field name="project_technical_name"/>
+                                </group>
+                                <group string="Caution GBE">
+                                    <field name="caution_gbe_id" context="{'default_type_caution': 'gbe', 'default_date_notification': notification_date}"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- =============== Onglet Administratif =============== -->
+                        <page string="Administratif" name="page_administrative"
+                              invisible="state in ('draft','tender','deliberation','notification')">
+                            <group>
+                                <group string="ALGEX">
+                                    <field name="algex_status"/>
+                                    <field name="algex_submission_date"
+                                           invisible="algex_status == 'na'"/>
+                                    <field name="algex_decision_date"
+                                           invisible="algex_status not in ('obtained','refused')"/>
+                                </group>
+                                <group string="Homologation">
+                                    <field name="homologation_status"/>
+                                    <field name="homologation_notes"
+                                           invisible="homologation_status == 'not_required'"
+                                           placeholder="Listez ici les produits nécessitant une homologation..."/>
+                                </group>
+                            </group>
+                            <separator string="Bons de Commande Client"/>
+                            <field name="client_order_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- =============== Onglet Importation =============== -->
+                        <page string="Importation" name="page_importation"
+                              invisible="state in ('draft','tender','deliberation','notification')">
+                            <div class="oe_button_box mb-3">
+                                <button name="action_create_import" type="object"
+                                        string="➕ Créer une Importation"
+                                        class="btn-primary"
+                                        invisible="state != 'importation'"/>
+                            </div>
+                            <field name="import_tracking_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="invoice_number"/>
+                                    <field name="state"
+                                           decoration-info="state == 'draft'"
+                                           decoration-warning="state == 'customs'"
+                                           decoration-success="state == 'received'"
+                                           widget="badge"/>
+                                    <field name="total_cost_price"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- =============== Onglet Réalisation =============== -->
+                        <page string="Réalisation &amp; Garantie" name="page_realization"
+                               invisible="state not in ('realization','done','realized')">
+                            <group>
+                                <group string="Livraison &amp; Réalisation">
+                                    <field name="delivery_status" widget="badge" 
+                                           decoration-info="delivery_status == 'pending'"
+                                           decoration-warning="delivery_status == 'in_progress'"
+                                           decoration-success="delivery_status == 'delivered'"/>
+                                    <field name="realization_deadline" invisible="state != 'realization'"/>
+                                    <field name="realization_remaining_days" widget="integer" invisible="state != 'realization'" decoration-danger="realization_remaining_days &lt; 5" decoration-warning="realization_remaining_days &lt; 15"/>
+                                </group>
+                                <group string="Période de Garantie">
+                                    <field name="warranty_duration" required="state == 'done'"/>
+                                    <field name="warranty_start_date"/>
+                                    <field name="warranty_end_date" readonly="1"/>
+                                    <field name="warranty_remaining_days" invisible="state != 'done'"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <!-- Chatter -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- VUE KANBAN (Tableau de Bord)                                      -->
+    <!-- ================================================================ -->
+    <record id="view_project_lifecycle_kanban" model="ir.ui.view">
+        <field name="name">project.lifecycle.kanban</field>
+        <field name="model">project.lifecycle</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="tender_number"/>
+                <field name="project_technical_name"/>
+                <field name="deliberation_result"/>
+                <field name="state"/>
+                <field name="dashboard_status"/>
+                <field name="delivery_status"/>
+                <field name="notification_date"/>
+                <field name="caution_soumission_id"/>
+                <field name="caution_gbe_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click shadow-sm border-0 mb-3 rounded-lg bg-white"
+                             t-att-style="record.state.raw_value == 'realized' ? 'border-left: 5px solid #28a745 !important;' : 
+                                          (record.state.raw_value == 'done' ? 'border-left: 5px solid #17a2b8 !important;' : 
+                                          (record.state.raw_value == 'cancelled' ? 'border-left: 5px solid #dc3545 !important;' : ''))">
+                            <div class="oe_kanban_content p-3">
+                                <div class="o_kanban_record_top mb-2">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title text-primary" style="font-size: 1.1rem;">
+                                            <field name="partner_id"/>
+                                        </strong>
+                                        <div class="text-muted mt-1" style="font-size: 0.9rem;">
+                                            <i class="fa fa-folder-open-o mr-1"/> <field name="project_technical_name"/>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-end">
+                                        <span class="badge badge-pill badge-info py-1 px-2 mb-1" style="font-size: 0.75rem;">
+                                            <field name="tender_number"/>
+                                        </span>
+                                        <small t-if="record.notification_date.raw_value" class="text-muted">
+                                            Notif: <field name="notification_date"/>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="o_kanban_record_body my-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div t-if="record.deliberation_result.raw_value">
+                                            <span t-attf-class="badge #{record.deliberation_result.raw_value == 'won' ? 'badge-success' : 'badge-danger'} py-1 px-2">
+                                                <i t-attf-class="fa #{record.deliberation_result.raw_value == 'won' ? 'fa-trophy' : 'fa-times'} mr-1"/>
+                                                <field name="deliberation_result"/>
+                                            </span>
+                                        </div>
+                                        <div class="d-flex gap-1">
+                                            <span t-if="record.caution_soumission_id.raw_value" title="Caution Soumission" class="badge badge-light border">
+                                                <i class="fa fa-bank text-warning"/> CS
+                                            </span>
+                                            <span t-if="record.caution_gbe_id.raw_value" title="Caution GBE" class="badge badge-light border ml-1">
+                                                <i class="fa fa-shield text-info"/> GBE
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div t-if="record.dashboard_status.raw_value" class="alert alert-secondary p-2 mb-0 mt-2 border-0 rounded" style="background-color: #f8f9fa; border-left: 3px solid #007bff !important;">
+                                        <small class="text-muted font-weight-bold text-uppercase" style="font-size: 0.65rem;"><i class="fa fa-info-circle mr-1"/> Suivi Phase</small><br/>
+                                        <span class="text-dark font-weight-bold" style="font-size: 0.85rem;"><field name="dashboard_status"/></span>
+                                    </div>
+                                </div>
+
+                                <div class="o_kanban_record_bottom mt-3 d-flex justify-content-between align-items-center">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="delivery_status" widget="label_selection" 
+                                               options="{'classes': {'pending': 'default', 'in_progress': 'warning', 'delivered': 'success'}}"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <span class="badge badge-light border text-uppercase" style="font-size: 0.65rem;">
+                                            <field name="state"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- VUE LISTE (Tree)                                                  -->
+    <!-- ================================================================ -->
+    <record id="view_project_lifecycle_tree" model="ir.ui.view">
+        <field name="name">project.lifecycle.list</field>
+        <field name="model">project.lifecycle</field>
+        <field name="priority" eval="1"/>
+        <field name="arch" type="xml">
+            <list string="Projets"
+                  decoration-danger="state == 'cancelled' or deliberation_result == 'lost'"
+                  decoration-success="state == 'realized'"
+                  decoration-info="state == 'done'"
+                  decoration-warning="state == 'deliberation'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="tender_number"/>
+                <field name="project_technical_name"/>
+                <field name="deliberation_result"
+                       decoration-danger="deliberation_result == 'lost'"
+                       decoration-success="deliberation_result == 'won'"
+                       widget="badge" optional="show"/>
+                <field name="algex_status" widget="badge" optional="show"/>
+                <field name="delivery_status" widget="badge" optional="hide"/>
+                <field name="import_count" string="Imports"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'done'"
+                       decoration-success="state == 'realized'"
+                       decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- VUE RECHERCHE                                                     -->
+    <!-- ================================================================ -->
+    <record id="view_project_lifecycle_search" model="ir.ui.view">
+        <field name="name">project.lifecycle.search</field>
+        <field name="model">project.lifecycle</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un Projet">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="tender_number"/>
+                <field name="project_technical_name"/>
+                <separator/>
+                <filter string="Brouillon" name="filter_draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="En cours" name="filter_active"
+                        domain="[('state', 'not in', ('done', 'cancelled'))]"/>
+                <filter string="Terminé" name="filter_done"
+                        domain="[('state', '=', 'done')]"/>
+                <filter string="Annulé" name="filter_cancelled"
+                        domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter string="Gagné" name="filter_won"
+                        domain="[('deliberation_result', '=', 'won')]"/>
+                <filter string="Perdu" name="filter_lost"
+                        domain="[('deliberation_result', '=', 'lost')]"/>
+                <separator/>
+                <filter string="ALGEX Obtenu" name="filter_algex_ok"
+                        domain="[('algex_status', '=', 'obtained')]"/>
+                <filter string="ALGEX Refusé" name="filter_algex_ko"
+                        domain="[('algex_status', '=', 'refused')]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Client" name="group_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="État" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Résultat" name="group_result"
+                            context="{'group_by': 'deliberation_result'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- ACTION                                                            -->
+    <!-- ================================================================ -->
+    <record id="action_project_lifecycle" model="ir.actions.act_window">
+        <field name="name">Projets</field>
+        <field name="res_model">project.lifecycle</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_project_lifecycle_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer votre premier projet
+            </p>
+            <p>
+                Suivez le cycle de vie complet de vos projets : de l'appel d'offre jusqu'à la livraison.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_project_lifecycle_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_project_lifecycle_kanban"/>
+        <field name="act_window_id" ref="action_project_lifecycle"/>
+    </record>
+
+    <record id="action_project_lifecycle_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_project_lifecycle_tree"/>
+        <field name="act_window_id" ref="action_project_lifecycle"/>
+    </record>
+
+    <record id="action_project_lifecycle_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_project_lifecycle_form"/>
+        <field name="act_window_id" ref="action_project_lifecycle"/>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- MENU                                                              -->
+    <!-- ================================================================ -->
+    <menuitem id="menu_marinfor_project_root"
+              name="Projets Marinfor"
+              sequence="5"
+              web_icon="marinfor_project,static/description/icon.png"/>
+
+    <menuitem id="menu_marinfor_project_main"
+              name="Projets"
+              parent="menu_marinfor_project_root"
+              action="action_project_lifecycle"
+              sequence="10"/>
+
+</odoo>

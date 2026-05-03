@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_bank_form_inherit_marinfor" model="ir.ui.view">
+        <field name="name">res.bank.form.inherit.marinfor</field>
+        <field name="model">res.bank</field>
+        <field name="inherit_id" ref="base.view_res_bank_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='bic']" position="after">
+                <field name="rib"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_bank_tree_inherit_marinfor" model="ir.ui.view">
+        <field name="name">res.bank.list.inherit.marinfor</field>
+        <field name="model">res.bank</field>
+        <field name="inherit_id" ref="base.view_res_bank_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='bic']" position="after">
+                <field name="rib"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_res_bank_marinfor" model="ir.actions.act_window">
+        <field name="name">Banques / RIB</field>
+        <field name="res_model">res.bank</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_finance_config" name="Configuration" 
+              parent="menu_finance_root" sequence="100"/>
+    
+    <menuitem id="menu_finance_bank" name="Banques / RIB" 
+              parent="menu_finance_config" action="action_res_bank_marinfor"/>
+</odoo>

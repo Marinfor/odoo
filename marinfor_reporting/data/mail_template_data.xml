@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="email_template_daily_debrief_v2" model="mail.template">
+            <field name="name">Debrief Quotidien Marinfor</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="subject">📊 Debrief Quotidien Marinfor - {{ ctx.get('today') }}</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px; background-color: #ffffff; border-radius: 8px; overflow: hidden; margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        <!-- Header -->
+        <tr>
+            <td align="center" style="background-color: #1a237e; padding: 30px 20px;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">Rapport de Suivi Marinfor</h1>
+                <p style="color: #c5cae9; margin: 10px 0 0; font-size: 16px;">Debriefing des Opérations du <t t-out="ctx.get('today')"/></p>
+            </td>
+        </tr>
+
+        <!-- Content -->
+        <tr>
+            <td style="padding: 30px 20px;">
+                
+                <!-- SECTION ALERTES CRITIQUES -->
+                <t t-if="ctx.get('critical_projects')">
+                    <h2 style="color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 5px; font-size: 18px; text-transform: uppercase;">⚠️ Alertes &amp; Retards</h2>
+                    <t t-foreach="ctx.get('critical_projects')" t-as="project">
+                        <div style="margin-bottom: 10px; padding: 10px; background-color: #fff5f5; border-left: 5px solid #d32f2f; border-radius: 4px;">
+                            <strong style="color: #d32f2f;"><t t-out="project.project_technical_name or project.name"/></strong><br/>
+                            <span style="font-size: 13px;">
+                                État : <t t-out="dict(project._fields['state'].selection).get(project.state)"/><br/>
+                                <t t-if="project.state == 'tender'">
+                                    ALERTE : Date limite de soumission : <strong><t t-out="project.tender_submission_deadline"/></strong>
+                                </t>
+                                <t t-else="">
+                                    ALERTE : Échéance dépassée ou proche : <strong><t t-out="project.realization_deadline"/></strong>
+                                </t>
+                            </span>
+                        </div>
+                    </t>
+                </t>
+
+                <!-- SECTION PROJETS : DEBRIEF DÉTAILLÉ -->
+                <h2 style="color: #1a237e; border-bottom: 2px solid #1a237e; padding-bottom: 5px; font-size: 20px; text-transform: uppercase; margin-top: 30px;">🏗️ État des Projets en Cours</h2>
+                
+                <t t-if="ctx.get('projects')">
+                    <t t-foreach="ctx.get('projects')" t-as="project">
+                        <div style="margin-bottom: 20px; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; background-color: #fcfcfc;">
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td width="70%">
+                                        <h3 style="margin: 0 0 5px; color: #1a237e; font-size: 16px;">
+                                            <t t-out="project.project_technical_name or project.name"/> 
+                                            <span style="font-weight: normal; font-size: 12px; color: #666;">(Ref: <t t-out="project.name"/>)</span>
+                                        </h3>
+                                        <p style="margin: 0; font-size: 13px; color: #333;"><strong>Client :</strong> <t t-out="project.partner_id.name"/></p>
+                                    </td>
+                                    <td width="30%" align="right">
+                                        <span style="background-color: #e8eaf6; color: #1a237e; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                                            <t t-out="dict(project._fields['state'].selection).get(project.state)"/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 12px;">
+                                <table width="100%">
+                                    <tr>
+                                        <td width="50%" valign="top">
+                                            <p style="margin: 2px 0;">📍 <strong>Statut :</strong> <t t-out="project.dashboard_status or 'Aucune info'"/></p>
+                                            <p t-if="project.tender_number" style="margin: 2px 0;">🏷️ <strong>AO N° :</strong> <t t-out="project.tender_number"/></p>
+                                            <p t-if="project.tender_submission_deadline" style="margin: 2px 0;">📅 <strong>Soumission :</strong> <t t-out="project.tender_submission_deadline"/></p>
+                                        </td>
+                                        <td width="50%" valign="top">
+                                            <t t-if="project.state in ('notification', 'administrative', 'importation', 'realization')">
+                                                <p style="margin: 2px 0;">📅 <strong>Notifié le :</strong> <t t-out="project.notification_date or '-'"/></p>
+                                                <p style="margin: 2px 0;">🏁 <strong>Deadline :</strong> <t t-out="project.realization_deadline or '-'"/></p>
+                                                <p t-if="project.realization_remaining_days" style="margin: 2px 0; font-weight: bold; color: #d32f2f;">⏳ Jours restants : <t t-out="project.realization_remaining_days"/></p>
+                                            </t>
+                                            <t t-if="project.state == 'done'">
+                                                <p style="margin: 2px 0; color: #2e7d32;">🛡️ <strong>Garantie jusqu'au :</strong> <t t-out="project.warranty_end_date"/></p>
+                                                <p style="margin: 2px 0; font-weight: bold; color: #2e7d32;">⏳ Garantie : <t t-out="project.warranty_remaining_days"/> j restants</p>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+
+                <!-- SECTION FINANCE : CAUTIONS -->
+                <h2 style="color: #1a237e; border-bottom: 2px solid #1a237e; padding-bottom: 5px; font-size: 20px; text-transform: uppercase; margin-top: 40px;">💰 Cautions &amp; Finances</h2>
+                
+                <t t-if="ctx.get('expiring_cautions')">
+                    <div style="background-color: #fff5f5; border: 1px solid #feb2b2; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 8px; color: #c53030; font-size: 14px;">🚨 Échéances Cautions Proches</h4>
+                        <table width="100%" style="font-size: 12px; border-collapse: collapse;">
+                            <t t-foreach="ctx.get('expiring_cautions')" t-as="caution">
+                                <tr>
+                                    <td style="padding: 4px; border-bottom: 1px solid #feb2b2;"><t t-out="caution.name"/></td>
+                                    <td style="padding: 4px; border-bottom: 1px solid #feb2b2;"><t t-out="caution.beneficiaire"/></td>
+                                    <td style="padding: 4px; border-bottom: 1px solid #feb2b2; font-weight: bold;" align="right"><t t-out="caution.date_echeance"/></td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </t>
+
+                <t t-if="ctx.get('main_levee_cautions')">
+                    <div style="background-color: #ebf8ff; border: 1px solid #90cdf4; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 8px; color: #2b6cb0; font-size: 14px;">📥 Mains Levées à Récupérer</h4>
+                        <table width="100%" style="font-size: 12px; border-collapse: collapse;">
+                            <t t-foreach="ctx.get('main_levee_cautions')" t-as="caution">
+                                <tr>
+                                    <td style="padding: 4px; border-bottom: 1px solid #90cdf4;"><t t-out="caution.name"/></td>
+                                    <td style="padding: 4px; border-bottom: 1px solid #90cdf4;"><t t-out="caution.bank_id.name"/></td>
+                                    <td style="padding: 4px; border-bottom: 1px solid #90cdf4;" align="right"><t t-out="caution.montant"/> <t t-out="caution.currency_id.symbol"/></td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </t>
+
+                <!-- SECTION IMPORTATION -->
+                <h2 style="color: #1a237e; border-bottom: 2px solid #1a237e; padding-bottom: 5px; font-size: 20px; text-transform: uppercase; margin-top: 40px;">🚢 Importations</h2>
+                <t t-if="ctx.get('active_imports')">
+                    <table width="100%" cellpadding="5" style="border-collapse: collapse; font-size: 12px; margin-top: 10px;">
+                        <t t-foreach="ctx.get('active_imports')" t-as="imp">
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong><t t-out="imp.name"/></strong> - <t t-out="imp.partner_id.name"/></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;" align="right">
+                                    <span style="background-color: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">
+                                        <t t-out="dict(imp._fields['state'].selection).get(imp.state)"/>
+                                    </span>
+                                </td>
+                            </tr>
+                        </t>
+                    </table>
+                </t>
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -30,7 +30,6 @@ class ImportTracking(models.Model):
         copy=False, 
         tracking=True,
         default='/',
-        placeholder="La référence sera générée automatiquement : Fournisseur - Année - N°"
     )
 
     # Références et Dossiers (Options)
@@ -39,6 +38,7 @@ class ImportTracking(models.Model):
     # Informations Partenaires
     partner_id = fields.Many2one('res.partner', string='Fournisseur', required=True, tracking=True)
     forwarder_id = fields.Many2one('res.partner', string='Transitaire', tracking=True)
+    bank_id = fields.Many2one('res.bank', string='Banque / RIB', tracking=True)
     
     # Information Facture
     invoice_number = fields.Char(string='Référence Facture', tracking=True)
@@ -86,7 +86,7 @@ class ImportTracking(models.Model):
     amount_tva = fields.Monetary(string='TVA (19%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_prct = fields.Monetary(string='PRCT (2%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     amount_tcs = fields.Monetary(string='TCS (3%)', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
-    other_d10_details = fields.Char(string='Détails Taxes D10', placeholder="ex: RPS à 4000 DA")
+    other_d10_details = fields.Char(string='Détails Taxes D10')
     amount_total_d10 = fields.Monetary(string='Montant Quittance', compute='_compute_d10_amounts', store=True, currency_field='currency_id')
     
     # Section Transitaire (Frais dédiés)

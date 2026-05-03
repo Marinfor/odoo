@@ -4,7 +4,7 @@
         <field name="name">import.tracking.tree</field>
         <field name="model">import.tracking</field>
         <field name="arch" type="xml">
-            <tree string="importation Marinfor">
+            <list string="importation Marinfor">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="forwarder_id"/>
@@ -13,9 +13,9 @@
                 <field name="total_amount_global" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-info="True"/>
                 <field name="total_tva_global" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="total_cost_price" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="True" decoration-success="True"/>
-                <field name="currency_id" column_invisible="True"/>
+                <field name="currency_id" column_invisible="1"/>
                 <field name="state" widget="badge" decoration-info="state == 'shipped'" decoration-success="state == 'received'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -73,6 +73,7 @@
                         
                         <group string="Transitaire (Transit)" name="group_transit">
                             <field name="forwarder_id" options="{'no_create': True}"/>
+                            <field name="bank_id" options="{'no_create': False}"/>
                             <field name="transit_invoice_number"/>
                             <field name="transit_amount_ht" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="transit_amount_tva" widget="monetary" options="{'currency_field': 'currency_id'}"/>
@@ -115,7 +116,7 @@
                     <notebook>
                         <page string="Détails Produits (D10)" name="products">
                             <field name="product_line_ids" nolabel="1">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="name" placeholder="Description du produit" required="1"/>
                                     <field name="product_id" options="{'no_create': True}" optional="hide"/>
                                     <field name="amount_base" string="Assiette" sum="Total Assiette" decoration-info="True" decoration-bf="True"/>
@@ -124,19 +125,19 @@
                                     <field name="amount_tcs" string="TCS (3%)" sum="Total TCS"/>
                                     <field name="amount_tva" string="TVA (19%)" sum="Total TVA"/>
                                     <field name="amount_prct" string="PRCT (2%)" sum="Total PRCT"/>
-                                    <field name="currency_id" column_invisible="True"/>
-                                </tree>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
                             </field>
                         </page>
                         <page string="Autres Frais (Transport, etc.)" name="other_expenses">
                             <field name="expense_line_ids" nolabel="1">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="name" placeholder="ex: Frais Transitaire, Magasinage..."/>
                                     <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                     <field name="tva_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                     <field name="total_amount" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
-                                    <field name="currency_id" column_invisible="True"/>
-                                </tree>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
                             </field>
                             <group class="oe_subtotal_footer oe_right">
                                 <field name="table_expenses_ht" string="Total Hors Taxe" widget="monetary" options="{'currency_field': 'currency_id'}"/>
@@ -159,11 +160,7 @@
                     </group>
                     <div class="clearfix"/>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -171,6 +168,6 @@
     <record id="action_import_tracking" model="ir.actions.act_window">
         <field name="name">importation Marinfor</field>
         <field name="res_model">import.tracking</field>
-        <field name="view_mode">tree,form,kanban</field>
+        <field name="view_mode">list,form,kanban</field>
     </record>
 </odoo>

@@ -1,0 +1,24 @@
+<odoo>
+    <template id="report_header_marinfor" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[@class='header']" position="replace">
+            <div class="header" style="border-bottom: 1px solid black; font-family: sans-serif;">
+                <div class="row">
+                    <div class="col-7">
+                        <h3 style="margin:0;">SARL MARINFOR - Constant</h3>
+                        <p>
+                            <span t-field="res_company.street"/> - Constant<br/>
+                            RC: <span t-field="res_company.rc_selection"/> | 
+                            NIF: <span t-field="res_company.nif_selection"/> | 
+                            NIS: CONSTANT<br/>
+                            AI: ... | TEL: <span t-field="res_company.phone"/><br/>
+                            RIB: <span t-field="res_company.rib_selection"/>
+                        </p>
+                    </div>
+                    <div class="col-5 text-right">
+                        <img t-if="res_company.logo" t-att-src="image_data_uri(res_company.logo)" style="max-height: 70px;"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

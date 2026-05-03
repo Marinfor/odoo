@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_lifecycle_user,project.lifecycle.user,model_project_lifecycle,base.group_user,1,1,1,0
+access_project_lifecycle_manager,project.lifecycle.manager,model_project_lifecycle,base.group_system,1,1,1,1
+access_project_client_order_user,project.client.order.user,model_project_client_order,base.group_user,1,1,1,0
+access_project_client_order_manager,project.client.order.manager,model_project_client_order,base.group_system,1,1,1,1

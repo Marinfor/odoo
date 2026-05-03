@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_marinfor_bank_list" model="ir.ui.view">
+        <field name="name">marinfor.bank.list</field>
+        <field name="model">marinfor.bank</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="rib"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_marinfor_bank_form" model="ir.ui.view">
+        <field name="name">marinfor.bank.form</field>
+        <field name="model">marinfor.bank</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="rib"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_marinfor_bank" model="ir.actions.act_window">
+        <field name="name">Banques Marinfor</field>
+        <field name="res_model">marinfor.bank</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_marinfor_config" name="Configuration Marinfor" 
+              parent="base.menu_administration" sequence="100"/>
+    
+    <menuitem id="menu_marinfor_bank" name="Banques" 
+              parent="menu_marinfor_config" action="action_marinfor_bank"/>
+</odoo>

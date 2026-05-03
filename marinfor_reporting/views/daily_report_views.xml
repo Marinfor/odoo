@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_marinfor_daily_report_form" model="ir.ui.view">
+        <field name="name">marinfor.daily.report.form</field>
+        <field name="model">marinfor.daily.report</field>
+        <field name="arch" type="xml">
+            <form string="Générer Débriefing">
+                <sheet>
+                    <group>
+                        <p class="oe_grey">
+                            Cliquez sur le bouton ci-dessous pour envoyer immédiatement le débriefing quotidien par email aux responsables.
+                        </p>
+                    </group>
+                    <footer>
+                        <button name="send_daily_debrief" string="Envoyer le Débriefing par Email" type="object" class="btn-primary"/>
+                        <button string="Annuler" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_marinfor_daily_report" model="ir.actions.act_window">
+        <field name="name">Débriefing Quotidien</field>
+        <field name="res_model">marinfor.daily.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_marinfor_reporting_root"
+              name="Reporting"
+              parent="marinfor_project.menu_marinfor_project_root"
+              sequence="50"/>
+
+    <menuitem id="menu_marinfor_daily_report"
+              name="Débriefing Quotidien"
+              parent="menu_marinfor_reporting_root"
+              action="action_marinfor_daily_report"
+              sequence="10"/>
+</odoo>
